@@ -14,6 +14,7 @@ export class AboutUsPage implements OnInit {
   private captchaResponse: string;
   model:any={};
   icons : any =[];
+  groupedThanks:any = [];
   constructor(private fetch: FetchService,private zone: NgZone,public alertController: AlertController, private storage:StorageService) { }
  
   ngOnInit() {
@@ -73,14 +74,18 @@ export class AboutUsPage implements OnInit {
     this.fetch.getAboutUsPageCOntent(lang_code).subscribe(res => {
       this.model.aboutus = res.content.Aboutus;
       this.model.Specialthanks = res.content.Specialthanks;
-      this.model.Specialthanks.forEach((val,i)=>{
-         if(i%2==0){
-          this.icons.push({icon1 : val.icon, icon2 : ''});
-         }
-         else{
-           this.icons[i-1]['icon2'] = val.icon;
-         }
-      });
+      this.groupedThanks = [];
+      for (let i = 0; i < this.model.Specialthanks.length; i += 2) {
+        this.groupedThanks.push(this.model.Specialthanks.slice(i, i + 2));
+      }
+      // this.model.Specialthanks.forEach((val,i)=>{
+      //    if(i%2==0){
+      //     this.icons.push({icon1 : val.icon, icon2 : ''});
+      //    }
+      //    else{
+      //      this.icons[i-1]['icon2'] = val.icon;
+      //    }
+      // });
       
     });
   }

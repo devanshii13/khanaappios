@@ -23,12 +23,11 @@
   
   <div class="thanks_logos">
     <ion-slides>
-      <ion-slide *ngFor="let x of icons let i =index">
-        <div class="thanks_logo tl_1">
-          <img src="{{model.image_url}}{{x.icon1}}">
-        </div>
-        <div class="thanks_logo tl_2" >
-          <img src="{{model.image_url}}{{x.icon2}}">
+      <ion-slide *ngFor="let pair of groupedThanks">
+        <div class="thanks_logo_container">
+          <div class="thanks_logo" *ngFor="let x of pair">
+            <img [src]="model.image_url + x.icon" alt="logo" />
+          </div>
         </div>
       </ion-slide>
 
