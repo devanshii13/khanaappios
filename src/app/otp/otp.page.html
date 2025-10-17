@@ -17,7 +17,7 @@
   <div class="ion-padding">
     <div class="app_input_text center_input vertical_center">
       
-      <input type="number" placeholder="OTP" id="check_otp" [(ngModel)]='value' (input)='check_otp($event.target.value)'>
+      <input type="text" inputmode="numeric" pattern="[0-9]*" name="otp" autocomplete="one-time-code" placeholder="OTP" id="check_otp" [(ngModel)]='value' (input)='check_otp($event.target.value)'>
       
       <img src="assets/images/done.svg" class="green_check" id="right_otp" style="display:none;">
       <img src="assets/images/wrong_sign.svg" class="green_check" id="wrong_otp" style="display:none;">
