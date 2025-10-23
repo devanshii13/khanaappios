@@ -83,9 +83,7 @@ slideOpts = {
 		}
 		
 	});
-	this.fetch.show_feedback(this.model.user_id).subscribe(res => {
-		this.model.feedback_data = res.data;
-	});
+	
 	let user = JSON.stringify({'id': this.model.user_id});
 	this.fetch.profile(user).subscribe(res => {
 

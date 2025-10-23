@@ -165,25 +165,25 @@
 
 
 
-<ion-slides class="swipe_msg" [options]="slideOpts">
-	<ion-slide *ngFor="let x of model.feedback_data;let i = index">
-		<div class="thanks_msg" *ngIf=" i % 2 === 0 && x.comment != null" >
-			<div style="margin-bottom: 5px;">{{x.username}} {{model.key_text15}}</div>
-			<div class="size_15 regular green">
-				{{x.comment}}<ion-icon style="font-size: 18px;" (click)="share(x.comment)" name="share-social-outline"></ion-icon>
+	<ion-slides class="swipe_msg" [options]="slideOpts">
+		<ion-slide *ngFor="let x of model.feedback_data;let i = index">
+			<div class="thanks_msg" *ngIf=" i % 2 === 0 && x.comment != null" >
+				<div style="margin-bottom: 5px;">{{x.username}} {{model.key_text15}}</div>
+				<div class="size_15 regular green">
+					{{x.comment}}<ion-icon style="font-size: 16px;position:relative;top: 2px;left: 5px;" (click)="share(x.comment)" name="share-social-outline"></ion-icon>
+				</div>
+				<img src="assets/images/smile.svg"/>
 			</div>
-			<img src="assets/images/smile.svg"/>
-		</div>
-		<div class="thanks_msg second_slide" *ngIf=" i % 2 !== 0 && x.comment != null">
-			<img src="assets/images/smile.svg"/>
-			<div style="margin-bottom: 5px;">{{x.username}} {{model.key_text15}}</div>
-			<div class="size_15 regular green">
-				{{x.comment}}<ion-icon style="font-size: 18px;" (click)="share(x.comment)" name="share-social-outline"></ion-icon>
-			</div>      
-		</div> 
-	</ion-slide>
-	
-</ion-slides>
+			<div class="thanks_msg second_slide" *ngIf=" i % 2 !== 0 && x.comment != null">
+				<img src="assets/images/smile.svg"/>
+				<div style="margin-bottom: 5px;">{{x.username}} {{model.key_text15}}</div>
+				<div class="size_15 regular green">
+					{{x.comment}}<ion-icon style="font-size: 16px;position:relative;top: 2px;left: 5px;" (click)="share(x.comment)" name="share-social-outline"></ion-icon>
+				</div>      
+			</div> 
+		</ion-slide>
+		
+	</ion-slides>
 
 
 <div class="ion-padding theme_width">
