@@ -12,6 +12,7 @@ import {
   import { Geolocation,GeolocationOptions ,Geoposition ,PositionError } from '@ionic-native/geolocation/ngx';
   import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { SimplePushNotificationPage } from '../simple-push-notification/simple-push-notification.page';
+import { DomSanitizer } from '@angular/platform-browser';
   declare var google: any;
   declare var $:any;
 @Component({
@@ -31,7 +32,9 @@ export class TermsConditionsPage implements OnInit {
   pincode;
   address: string;
   options : GeolocationOptions;
+  termsContent:any;
   constructor(private modalController: ModalController,
+    private sanitizer: DomSanitizer,
     private geolocation: Geolocation,
     public alertController: AlertController,
     private nativeGeocoder: NativeGeocoder,
@@ -39,6 +42,7 @@ export class TermsConditionsPage implements OnInit {
 	private fetch: FetchService) { }
 
   ngOnInit() {
+    this.termsContent = this.sanitizer.bypassSecurityTrustHtml(this.content);
     this.app_title = 'Khanaa.app';
     this.page_key1 = 'Terms & Conditions';
     
@@ -155,7 +159,7 @@ export class TermsConditionsPage implements OnInit {
     }); 
 
     modal.onDidDismiss().then((dataReturned) => {
-		this.router.navigate(['/home']);
+    this.router.navigate(['/home'], { replaceUrl: true });
       if (dataReturned !== null) {
       }
     });

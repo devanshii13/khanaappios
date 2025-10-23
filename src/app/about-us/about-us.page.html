@@ -11,8 +11,8 @@
   <div class="ion-padding" style="margin-top: -28px; padding: 35px 39px;">         
     <div class="regular size_15 box">
       <input type="checkbox" id="expanded" (click)="showMore()">
-     <p>{{ model.aboutus }}</p>
-     
+     <!-- <p>{{ model.aboutus }}</p> -->
+     <p  [innerHTML]="aboutUs"></p>
     </div>
     <div class="know_more" *ngIf="model.aboutus != ''">
       <label class="red regular" for="expanded" id="know_more" role="button">{{ model.key_text4 }}</label>

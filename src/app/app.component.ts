@@ -226,7 +226,7 @@ isLanguageChanged: boolean;
             var jd = JSON.parse(payload.message);
             
             if(jd.check_val == '1' ){
-              self.showNotification(jd.body,jd.my_array,jd.donor_details,jd.request_id);
+              self.showNotification(payload.body,jd.my_array,jd.donor_details,jd.request_id);
             }else if(jd.check_val == '2' ){
               self.showFoodDeliverPopupToVolunteer(jd.my_array);
             }else if(jd.check_val == '3' ){

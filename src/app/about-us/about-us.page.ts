@@ -3,6 +3,7 @@ import { FetchService } from '../fetch.service';
 import { StorageService } from '../storage.service';
 import { environment } from '../../environments/environment';
 import { AlertController } from '@ionic/angular';
+import { DomSanitizer } from '@angular/platform-browser';
 declare var $:any;
 @Component({
   selector: 'app-about-us',
@@ -15,7 +16,8 @@ export class AboutUsPage implements OnInit {
   model:any={};
   icons : any =[];
   groupedThanks:any = [];
-  constructor(private fetch: FetchService,private zone: NgZone,public alertController: AlertController, private storage:StorageService) { }
+  aboutUs:any;
+  constructor(private sanitizer: DomSanitizer,private fetch: FetchService,private zone: NgZone,public alertController: AlertController, private storage:StorageService) { }
  
   ngOnInit() {
     this.model.search = false;
@@ -73,6 +75,7 @@ export class AboutUsPage implements OnInit {
 		//});
     this.fetch.getAboutUsPageCOntent(lang_code).subscribe(res => {
       this.model.aboutus = res.content.Aboutus;
+      this.aboutUs = this.sanitizer.bypassSecurityTrustHtml(this.model.aboutus);
       this.model.Specialthanks = res.content.Specialthanks;
       this.groupedThanks = [];
       for (let i = 0; i < this.model.Specialthanks.length; i += 2) {
