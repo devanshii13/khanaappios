@@ -24,39 +24,52 @@ options : GeolocationOptions;
   dataReturned: any;
 	user_id: any;
 	foo_lang: string;
-  constructor(
-    public modalController: ModalController,
-	private router: Router,
-	private storage : StorageService,
-	private platform: Platform,
-	private geolocation: Geolocation,
-	private fetch: FetchService,
-	private diagnostic: Diagnostic,
-	private alertCtrl:AlertController,
-	private browserTab: BrowserTab,
-  ) { 
-	this.platform.backButton.subscribeWithPriority(10, () => {
-		this.router.navigate(['/home']);
-		//navigator['app'].exitApp();
-	});
-  }
-
-  ngOnInit() { 
-	this.fetch.detectSlowNetwork().subscribe(res => {
-		
-	  });
-	  this.foo_lang = JSON.parse(localStorage.getItem('lang'));
-	let platform = '';
-	document.addEventListener('deviceready', () => {
-		platform = device.platform;
-	});
-	this.model.user_id = JSON.parse(localStorage.getItem('user_registerd'));
-	let data = JSON.stringify({'id': this.model.user_id});
-	let token = localStorage.getItem('device_token');
-	let profile_data = JSON.stringify({'id' : this.model.user_id ,'device_token':token,'platform':platform});
-		this.fetch.updateDeviceToken(profile_data).subscribe(async(res) => {
-			
+	constructor(
+		public modalController: ModalController,
+		private router: Router,
+		private route: ActivatedRoute,
+		private storage: StorageService,
+		private platform: Platform,
+		private geolocation: Geolocation,
+		private fetch: FetchService,
+		private diagnostic: Diagnostic,
+		private alertCtrl:AlertController,
+		private browserTab: BrowserTab,
+	) {
+		this.checkVolunteer();
+		this.platform.backButton.subscribeWithPriority(10, () => {
+			this.router.navigate(['/home']);
+			//navigator['app'].exitApp();
 		});
+	}
+	slides = [];
+	slideOpts = {
+		//zoom: false,
+		autoplay: {
+			delay: 3000,
+			disableOnInteraction: false,
+			stopOnLastSlide: false
+		}
+
+	};
+	ngOnInit() {
+		
+			this.foo_lang = JSON.parse(localStorage.getItem('lang'));
+			this.checkVolunteer();
+			let platform = '';
+			document.addEventListener('deviceready', () => {
+				platform = device.platform;
+			});
+			this.model.user_id = JSON.parse(localStorage.getItem('user_registerd'));
+			let data = JSON.stringify({ 'id': this.model.user_id });
+			let token = localStorage.getItem('device_token');
+			let profile_data = JSON.stringify({ 'id': this.model.user_id, 'device_token': token, 'platform': platform });
+			this.fetch.updateDeviceToken(profile_data).subscribe(async (res) => {
+
+			});
+
+			
+			console.log(this.model.is_volunteer);
 		
 	  
   }
@@ -76,16 +89,17 @@ options : GeolocationOptions;
 		  });
 		  await confirm1.present();
 	}
-  
-  ionViewWillEnter(){
-  	
-	this.foo_lang = JSON.parse(localStorage.getItem('lang'));
-	localStorage.removeItem('receiver_food_type'); 
-	localStorage.removeItem('number_of_person'); 
-	localStorage.removeItem('set_confirm_location_route'); 
-	localStorage.removeItem('receiver_location'); 
-	localStorage.removeItem('food_for_no_of_person');
-	this.model.user_id = localStorage.getItem('user_id');
+
+	ionViewWillEnter() {
+		this.checkVolunteer();
+		this.foo_lang = JSON.parse(localStorage.getItem('lang'));
+	
+		localStorage.removeItem('receiver_food_type');
+		localStorage.removeItem('number_of_person');
+		localStorage.removeItem('set_confirm_location_route');
+		localStorage.removeItem('receiver_location');
+		localStorage.removeItem('food_for_no_of_person');
+		this.model.user_id = localStorage.getItem('user_id');
 
 	var self = this;
 	self.options = {
@@ -184,22 +198,37 @@ options : GeolocationOptions;
     return await modal.present();
   }
 
-  
-  go_donate(){
-	if(JSON.parse(localStorage.getItem('donor_location')) != null){
-		localStorage.removeItem('donor_location');
+	go_donate() {
+		if (JSON.parse(localStorage.getItem('donor_location')) != null) {
+			localStorage.removeItem('donor_location');
+		}
+		this.router.navigate(['/donate-food-members']);
 	}
-	this.router.navigate(['/donate-food-members']);
-  }
-  get_food_search(){
-	if(JSON.parse(localStorage.getItem('get-food-search')) != null){
-		localStorage.removeItem('get-food-search');
+
+	get_food_search() {
+		if (JSON.parse(localStorage.getItem('get-food-search')) != null) {
+			localStorage.removeItem('get-food-search');
+		}
+		this.router.navigate(['/get-food-search']);
 	}
-	this.router.navigate(['/get-food-search']);  
-  }
- 
-  go_to_volunteer(){
-	// this.browserTab.openUrl('http://maps.google.com/maps?q=loc:23.179300+75.784912');
-	this.router.navigate(['/volunteer-food-request']);  
-  }
+
+	go_to_volunteer() {
+		this.router.navigate(['/volunteer-food-request']);
+	}
+	checkVolunteer(){
+		console.log("Call Volunteer");
+		this.user_id = JSON.parse(localStorage.getItem('user_registerd'));
+		if(this.user_id){
+		  this.fetch.v_check(this.user_id).subscribe(res => {
+			if(res.success == true){
+			  if(res.status == 1){
+				this.model.is_volunteer = res.status;
+				localStorage.setItem('volunteer_approve','1');
+			  }
+			}
+		  });
+		  
+		}
+		
+	  }
 }

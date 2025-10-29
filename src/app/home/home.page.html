@@ -1,11 +1,18 @@
 <app-captcha></app-captcha>
-  
+  <div class="big_content noto_medium size_18" style="margin-bottom: 35px;" >
+    <ion-slides [options]="slideOpts"  >
+      <ion-slide  *ngFor="let slide of slides">
+        <div *ngIf=" slide.description != null" >
+          <div style="font-size:18px !important;" >"{{slide.description}}"<br>
+            <div class="grey" style="text-align: center;">-{{slide.quotes_by}}</div>
+          </div>  
+        </div>   
+      </ion-slide>    
+    </ion-slides>
+  </div>
 <ion-content style="display: flex;flex-direction: column;height: 100%;" >
 <div class="ion-padding theme_width my_custome_theme_width" style="padding-top: -25px;">
-  <div class="big_content noto_medium size_18">
-    " {{model.key_text1}}<br>
-    {{model.key_text2}} "
-  </div>
+  
   <div class="horizontal_center">
     
     <a (click)="get_food_search()">

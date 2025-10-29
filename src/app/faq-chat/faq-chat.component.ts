@@ -121,6 +121,7 @@ export class FaqChatComponent implements OnInit {
   async ngOnInit() {
 
     var lang_code = JSON.parse(localStorage.getItem('lang'));
+    this.currentLang = lang_code || 'en';
     let res = this.storage.getScope();
 		let item1 = res.find(i => i.key_text === 'CHAT_WITH_US');
     this.model.chat_with_us = item1[lang_code];
@@ -438,7 +439,8 @@ export class FaqChatComponent implements OnInit {
 
   changeLanguage(lang: string) {
     this.currentLang = lang;
-    this.appendBotMessage(`Language changed to ${lang.toUpperCase()}.`);
+    localStorage.setItem('lang', JSON.stringify(lang)); 
+    this.clearChat(); 
   }
 
   // Context-aware prev button logic
