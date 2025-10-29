@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { ModalController, AlertController  } from '@ionic/angular';
 import { HomeContentPage } from '../modal/home-content/home-content.page';
 import { StorageService } from '../storage.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Platform } from '@ionic/angular';
 import { FetchService } from '../fetch.service';
 import { Diagnostic } from "@ionic-native/diagnostic/ngx";
