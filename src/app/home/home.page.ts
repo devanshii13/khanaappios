@@ -131,6 +131,18 @@ options : GeolocationOptions;
   }
 	ionViewDidEnter(){
 		this.foo_lang = JSON.parse(localStorage.getItem('lang'));
+	this.slides = [];
+		let data = { model: "QuotesModel",lang_code : JSON.parse(localStorage.getItem('lang')) }
+		this.fetch.getTestimonialByLanguage(data).subscribe(async (resp) => {
+			if (resp) {
+				var quote = resp.data
+				this.model.quotes = quote
+				for (var j = 0; j < quote.length; j++) {
+					var quote1 = quote[j];
+					this.slides.push(quote1);
+				}
+			}
+		});
 			this.diagnostic.isLocationAvailable().then(resp =>{
 				
 				if(!resp){
