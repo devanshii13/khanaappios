@@ -150,7 +150,7 @@ isLanguageChanged: boolean;
 	this.fetch.isLanguageChanged.subscribe( value => {
 	    this.isLanguageChanged = value;
 		var lang_code = JSON.parse(localStorage.getItem('lang'));
-		this.fetch.getKeyText(lang_code).subscribe(rs => {
+    this.fetch.getKeyText(lang_code).subscribe(rs => {
       this.storage.setScope(rs);
       let res = this.storage.getScope();
       let item1 = res.find(i => i.key_text === 'REGISTER_AS_VOLUNTEER');
