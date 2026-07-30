@@ -17,9 +17,42 @@
             </div>
             <br>
             <div class="medium size_16 center" style="max-width: 200px; width: 100%; margin: 0 auto;">
-                <span *ngIf="veg != 0 && nonveg != 0 && model.username">{{ model.key_text1 }} {{ model.username }} {{ model.key_text2 }} {{ veg_food.total_food_for }} {{ model.key_text3 }} {{ model.key_text4 }} {{ nonveg_food.total_food_for }} {{ model.key_text3 }}, {{ model.key_text5 }}</span>
-                <span *ngIf="veg != 0 && nonveg == 0 && model.username">{{ model.key_text1 }} {{ model.username }} {{ model.key_text2 }} {{ veg_food.total_food_for }} {{ model.key_text3 }}, {{ model.key_text5 }}</span>
-                <span *ngIf="veg == 0 && nonveg != 0 && model.username">{{ model.key_text1 }} {{ model.username }} {{ model.key_text6 }} {{ nonveg_food.total_food_for }} {{ model.key_text3 }}, {{ model.key_text5 }}</span>
+                <span *ngIf="receiver_matched && !pickup_required && veg != 0 && nonveg == 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text8 }} {{ model.key_text9 }}
+                    {{ model.key_text11 }}. {{ veg_food.total_food_for }} {{ peopleLabel(veg_food.total_food_for) }}
+                    {{ matched_receiver_name }} {{ model.key_text12 }}
+                </span>
+                <span *ngIf="receiver_matched && !pickup_required && veg == 0 && nonveg != 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text8 }} {{ model.key_text10 }}
+                    {{ model.key_text11 }}. {{ nonveg_food.total_food_for }} {{ peopleLabel(nonveg_food.total_food_for) }}
+                    {{ matched_receiver_name }} {{ model.key_text12 }}
+                </span>
+                <span *ngIf="receiver_matched && !pickup_required && veg != 0 && nonveg != 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text8 }} {{ model.key_text9 }}
+                    {{ model.key_text11 }}. {{ veg_food.total_food_for }} {{ peopleLabel(veg_food.total_food_for) }}
+                    {{ model.key_text4 }} {{ nonveg_food.total_food_for }} {{ peopleLabel(nonveg_food.total_food_for) }}
+                    {{ matched_receiver_name }} {{ model.key_text12 }}
+                </span>
+                <span *ngIf="(!receiver_matched || pickup_required) && veg != 0 && nonveg != 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text2 }} {{ veg_food.total_food_for }}
+                    {{ peopleLabel(veg_food.total_food_for) }} {{ model.key_text4 }} {{ nonveg_food.total_food_for }}
+                    {{ peopleLabel(nonveg_food.total_food_for) }},
+                    {{ model.key_text5 }}
+                </span>
+                <span *ngIf="(!receiver_matched || pickup_required) && veg != 0 && nonveg == 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text2 }} {{ veg_food.total_food_for }}
+                    {{ peopleLabel(veg_food.total_food_for) }}, {{ model.key_text5 }}
+                </span>
+                <span *ngIf="(!receiver_matched || pickup_required) && veg == 0 && nonveg != 0 && model.username">
+                    {{ model.key_text1 }} {{ model.username }}, {{ model.key_text6 }} {{ nonveg_food.total_food_for }}
+                    {{ peopleLabel(nonveg_food.total_food_for) }}, {{ model.key_text5 }}
+                </span>
+            </div>
+            <div class="regular size_13 center activity-hint" *ngIf="pickup_required" style="max-width: 260px; width: 100%; margin: 16px auto 0; color: #555; line-height: 1.45;">
+                Please check the <strong>Activity</strong> section for pickup and third-party delivery updates.
+            </div>
+            <div class="regular size_13 center activity-hint" *ngIf="!pickup_required" style="max-width: 260px; width: 100%; margin: 16px auto 0; color: #555; line-height: 1.45;">
+                Please check the <strong>Activity</strong> section for donation updates.
             </div>
             <!-- <br><br> -->
             <!-- <div class="medium size_16 center" style="max-width: 240px; width: 100%; margin: 0 auto;">

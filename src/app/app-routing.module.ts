@@ -309,10 +309,20 @@ const routes: Routes = [
   {
     path: 'pincode-error-component',
     component: PincodeErrorComponentComponent
- }
+ },
   
-
- 
+  {
+    path: 'track-pickup',
+    loadChildren: () => import('./track-pickup/track-pickup.module').then(m => m.TrackPickupPageModule)
+  },
+ {
+    path: 'finding-rider/:id/:lat/:lon/:r_id/:mode/:food_type/:getfoodid',
+    loadChildren: () => import('./finding-rider/finding-rider.module').then(m => m.FindingRiderPageModule)
+  },
+  {
+    path: 'donate-food-pickup-method/:id/:id2',
+    loadChildren: () => import('./donate-food-pickup-method/donate-food-pickup-method.module').then( m => m.DonateFoodPickupMethodPageModule)
+  },
 ];
 
 @NgModule({

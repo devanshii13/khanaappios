@@ -1,110 +1,80 @@
-<!-- <ion-header class="ion-no-border ion-padding">
-  <ion-toolbar>
-    <ion-buttons slot="start">
-      <ion-menu-button>
-        <img src="assets/images/icon_menu.svg">
-      </ion-menu-button>
-    </ion-buttons>
-  
-    <ion-buttons slot="end" (click)="openModalNotification()">
-      <span *ngIf="notification.length>0" style="position: absolute;height: 10px;width: 10px;background-color: #000;border-radius: 50%;color: #fff;
-        top: -3px;
-        right: 3px;
-        text-align: center;"></span>      
-        <img src="assets/images/icon_notification.svg">
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header> -->
 <app-captcha></app-captcha>
-<ion-content>
-  <div class="custom_map_design">
-  <div style="margin-left: 20px;">
-    <div class="map-icon">
-      <ion-icon name="warning-outline" style="font-size: 14px; margin-top: 10px;"></ion-icon>
-    </div>
-    <div class="map_desc">      
-      <div class="regular size_12">
-        Wearning a mask in some public spaces is required due to COVID - 19
-      </div> 
-    </div>
-  </div> 
-  <div class="ion-padding res_ion_padding">
-    <div class="btn-group" style="margin-top: -12px;">
-      <button class="grey regular btn4" id="btn_drive">
-        <div class="donor_icon" (click)="calculate_route('DRIVING', 2)">
-          <img src="assets/images/{{model.bike_image}}">
-          <!--<img src="assets/images/icon_donor_bike_white.svg">-->
-        </div>
-        <div class="grey size_12" id="text_bike_time">
-          {{model.drive_time}}
-        </div>
-      </button>
+<ion-content class="accept-page-content">
+  <div class="accept-page-layout">
 
-      <button class="grey regular btn4" id="btn_bus">
-        <div class="donor_icon" (click)="calculate_route('TRANSIT', 2)">
-          <img src="assets/images/{{model.bus_image}}">
-          <!-- <img src="assets/images/icon_donor_bus_white.svg"> -->
-        </div>
-        <div class="grey size_12" id="text_bus_time">
-          {{model.public_time}}
-        </div>
-      </button>
+    <div [class.hidden]="!mapLoaded" class="transport-row">
+      <div class="btn-group transport-group">
+        <button class="grey regular btn4" id="btn_drive">
+          <div class="donor_icon" (click)="calculate_route('DRIVING', 2)">
+            <img src="assets/images/{{model.bike_image}}">
+          </div>
+          <div class="grey size_12" id="text_bike_time">{{model.drive_time}}</div>
+        </button>
+        <button class="grey regular btn4" id="btn_bus">
+          <div class="donor_icon" (click)="calculate_route('TRANSIT', 2)">
+            <img src="assets/images/{{model.bus_image}}">
+          </div>
+          <div class="grey size_12" id="text_bus_time">{{model.public_time}}</div>
+        </button>
+        <button class="grey regular btn4" id="btn_walk">
+          <div class="donor_icon" (click)="calculate_route('WALKING', 2)">
+            <img src="assets/images/{{model.walk_image}}">
+          </div>
+          <div class="grey size_12" id="text_walk_time">{{model.walk_time}}</div>
+        </button>
+      </div>
+    </div>
 
-      <button class="grey regular btn4" id="btn_walk">
-        <div class="donor_icon" (click)="calculate_route('WALKING', 2)">
-          <img src="assets/images/{{model.walk_image}}">
-          <!--<img src="assets/images/icon_donor_walk_white.svg">-->
+    <div class="map-wrap">
+      <div #map id="map"></div>
+      <div [class.hidden]="mapLoaded" class="map-loading-overlay">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    </div>
+
+    <div [class.hidden]="!mapLoaded" class="content-section">
+      <div class="food-offer-card">
+        <div class="offer-meta">
+          <ion-icon name="navigate-outline" class="meta-icon"></ion-icon>
+          <span class="offer-time">{{time_c}}</span>
+          <span class="offer-distance" *ngIf="distance_c">· {{distance_c}}</span>
         </div>
-        <div class="grey size_12" id="text_walk_time">
-         {{model.walk_time}}
-        </div>
-      </button>      
-      
+        <p class="offer-message">
+          <span class="greeting">{{model.key_text6}} {{model.username_r}},</span>
+          {{model.food_name}} {{model.key_text7}} {{model.number_of_person}} {{model.key_text8}}
+          {{model.key_text9}} <span class="distance-highlight">{{distance_c}}</span> {{model.key_text10}}.
+          {{model.key_text11}}<ng-container *ngIf="additional_msg_2"> {{additional_msg_2}}</ng-container>.
+        </p>
+      </div>
     </div>
   </div>
- 
- <!--  <div class="map volunteer_location">    
-    <img src="assets/images/map_volunteer.svg">
-  </div> -->
-  <div #map id="map"></div>
-  
-  <div class="ion-padding res_custom_padding">
-    <div class="" >
-      <p class="regular medium size_14 green">{{time_c}} <span class="grey size_14">({{distance_c}})</span></p>
+</ion-content>
+
+<ion-footer [class.hidden]="!mapLoaded" class="accept-page-footer">
+  <div class="pickup-info-banner" *ngIf="model.borzo_available">
+    <div class="pickup-chip" *ngIf="model.eta_display">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>ETA <strong>{{ model.eta_display }}</strong></span>
     </div>
-    <div class=""> 
-        
-      <div class="regular size_14 green">
-        {{model.key_text6}} {{model.username_r}}, {{model.food_name}} {{model.key_text7}} {{model.number_of_person}} {{model.key_text8}} {{model.key_text9}} <span class="size_14 regular red">{{distance_c}}</span> {{model.key_text10}}.{{model.key_text11}} {{additional_msg_2}}.
-        <!-- {{model.donor_address.city}}, {{model.donor_address.state}} <br>
-        {{model.donor_address.postalCode}}, {{model.donor_address.country}} -->
-      </div>      
-      
+    <div class="pickup-chip covered">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>Covered by Khanaa</span>
     </div>
   </div>
-</div>
-  
-  </ion-content>
-  
-  <ion-footer style="padding-top: 0px!important;">
-    <div class="medium size_16">
-      <ion-row>
-        <ion-col size="6">
-          <button class="app_btn custom_reject_btn" [ngClass]="disableButton ? 'light-shade' : '' " [disabled]="disableButton" (click)="rejectRequest()">{{model.key_text1}}</button>
-        </ion-col>
-        <ion-col size="6">
-          <button class="app_btn custom_accept_btn" [ngClass]="disableButton ? 'light-shade' : ''" [disabled]="disableButton"  (click)="acceptRequest()">{{model.key_text5}}</button>
-        </ion-col>
-      </ion-row>
-    </div>
-    <!-- <div class="app_button">
-      <a routerLink="/get-food-nearest-donors-two/{{model.add_id}}/{{model.r_lat}}/{{model.r_lon}}/{{model.r_id}}/{{model.mode}}/{{model.d_food_type}}/{{model.getFood_id}}">
-        <button class="app_btn">{{model.key_text1}}</button>
-      </a>
-    </div> -->
-
-  </ion-footer> 
-
-
- 
-  
+  <ion-row class="footer-actions">
+    <ion-col size="6">
+      <button class="app_btn custom_reject_btn" [ngClass]="disableButton ? 'light-shade' : ''"
+        [disabled]="disableButton" (click)="rejectRequest()">{{model.key_text1}}</button>
+    </ion-col>
+    <ion-col size="6">
+      <button class="app_btn custom_accept_btn"
+        [ngClass]="(disableButton || !model.borzo_available || model.checking_availability) ? 'light-shade' : ''"
+        [disabled]="disableButton || !model.borzo_available || model.checking_availability"
+        (click)="acceptRequest()">
+        <ion-spinner *ngIf="model.checking_availability" name="crescent"
+          style="height: 18px; width: 18px;"></ion-spinner>
+        <span *ngIf="!model.checking_availability">{{model.key_text5}}</span>
+      </button>
+    </ion-col>
+  </ion-row>
+</ion-footer>

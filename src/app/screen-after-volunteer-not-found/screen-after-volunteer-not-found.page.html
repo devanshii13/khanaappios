@@ -2,7 +2,8 @@
 <app-captcha></app-captcha>
 <ion-content style="display: flex;flex-direction: column;height: 100%;">
 <div class="ion-padding theme_width my_custome_theme_width">
-  <div class="big_content_new noto_medium size_18">
+  <div class="big_content_new noto_medium size_18 center no-volunteer-msg" *ngIf="model.key_text3">
+    {{model.key_text3}}
   </div>
   <div class="horizontal_center">
     <a (click)="pickupRequest()">

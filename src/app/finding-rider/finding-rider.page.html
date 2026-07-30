@@ -1,0 +1,14 @@
+<app-captcha></app-captcha>
+
+<ion-content>
+  <div class="finding-rider-container">
+    <div class="finding-rider-inner">
+      <ion-spinner name="crescent" class="finding-rider-spinner"></ion-spinner>
+      <p class="finding-rider-text">{{ statusText }}</p>
+      <p class="finding-rider-hint">{{ activityHint }}</p>
+      <button type="button" class="finding-rider-activity-btn" (click)="goToActivity()">
+        Open Activity
+      </button>
+    </div>
+  </div>
+</ion-content>

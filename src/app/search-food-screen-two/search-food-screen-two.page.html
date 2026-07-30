@@ -1,27 +1,172 @@
-
 <app-captcha></app-captcha>
-<ion-content style="display: flex;flex-direction: column;height: 100%;" >
-<div class="ion-padding theme_width my_custome_theme_width" *ngIf="search_type==''">
-  <div class="big_content_new noto_medium size_18">
-  </div>
-  <div class="horizontal_center">
-    <a>
-      <button class="app_btn big button" [ngClass]="model.click ? 'btn_disabled_class' : ''" (click)="!model.click && openModalCurrentLocation()">
-        {{model.key_text1}}
-      </button>
-    </a>
-    <a (click)="openOnTheWay()">
-      <button class="app_btn big button">
-        {{model.key_text2}}
-      </button>  
-    </a>
-  </div>
-</div>
+<ion-content class="pickup-content">
 
-<div *ngIf="search_type!=''">
-<ion-img src="../assets/images/loader.gif" style="height: 100px;text-align: center;margin-top: 50%;"></ion-img>
-<h5 class="size_15 regular green center">{{model.key_text1}}</h5>
-</div>
+  <!-- Step 0: Main option picker (Nearby / On the way) -->
+  <div class="ion-padding theme_width my_custome_theme_width"
+    *ngIf="search_type=='' && !model.show_receive_method && !model.show_map && !model.location_selected">
+    <div class="big_content_new noto_medium size_18">
+    </div>
+    <div class="horizontal_center">
+      <a>
+        <button class="app_btn big button" [ngClass]="model.click ? 'btn_disabled_class' : ''"
+          (click)="!model.click && selectNearbyReceivedOption()">
+          {{model.key_text1}}
+        </button>
+      </a>
+      <a (click)="openOnTheWay()">
+        <button class="app_btn big button">
+          {{model.key_text2}}
+        </button>
+      </a>
+    </div>
+  </div>
+
+  <!-- Step 1: Selection screen for Nearby options (Self Pickup vs Delivery by Khanaa) -->
+  <div class="drop-container" *ngIf="model.show_receive_method">
+
+    <!-- Heading -->
+    <div class="hero-section">
+      <h2 class="hero-title">How would you like to<br>receive the food?</h2>
+      <p class="hero-subtitle">Choose a pickup method that works best for you</p>
+    </div>
+
+    <!-- Option Cards -->
+    <div class="options-container">
+
+      <!-- Self Pickup -->
+      <div class="option-card" [class.selected-card]="!model.pickup_required" (click)="chooseReceiveMethod('self')">
+        <div class="icon-avatar donee-avatar">
+          <ion-icon name="person" class="donee-icon"></ion-icon>
+        </div>
+        <div class="card-text">
+          <div class="card-title">Self Pickup</div>
+          <div class="card-desc">I will collect the food myself</div>
+        </div>
+        <div class="radio-circle" [class.radio-checked]="!model.pickup_required"></div>
+      </div>
+
+      <!-- Delivery by Khanaa -->
+      <div class="option-card" [class.selected-card]="model.pickup_required" (click)="chooseReceiveMethod('delivery')">
+        <div class="icon-avatar khanaa-avatar">
+          <svg width="26" height="26" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="#0d8a72">
+            <path
+              d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-5 10.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm-9 0c-.83 0-1.5-.67-1.5-1.5S5.17 16.5 6 16.5s1.5.67 1.5 1.5S6.83 18.5 6 18.5zm13.5-9l1.96 2.5H17V9.5h2.5z" />
+          </svg>
+        </div>
+        <div class="card-text">
+          <div class="card-title-row">
+            <span class="card-title">Delivery by Khanaa</span>
+            <span class="new-badge">NEW</span>
+          </div>
+          <div class="card-desc">Khanaa delivery partner will deliver to me</div>
+        </div>
+        <div class="radio-circle" [class.radio-checked]="model.pickup_required"></div>
+      </div>
+
+    </div>
+
+    <!-- Info chip -->
+    <div class="info-chip">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>Your food is safe with us</span>
+    </div>
+
+    <!-- Continue Button Row -->
+    <div style="padding: 24px 20px;">
+      <button class="app_btn big_continue_btn" (click)="confirmReceiveMethod()">
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- Step 2: Summary screen -->
+  <div class="ion-padding theme_width" *ngIf="model.location_selected">
+    <!-- Final Summary (Replaces Map area) -->
+    <div class="modern_summary_card">
+      <div class="summary-header">
+        <div class="summary-icon-container">
+          <ion-icon name="document-text-outline" class="summary-header-icon"></ion-icon>
+        </div>
+        <div class="summary-header-text">
+          <h2 class="summary-title">Search Summary</h2>
+          <p class="summary-subtitle">Details of your request</p>
+        </div>
+      </div>
+
+      <div class="summary-details-list">
+        <!-- Location details -->
+        <div class="summary-item">
+          <div class="summary-label-row">
+            <ion-icon name="pin-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Delivery Location</span>
+          </div>
+          <span class="summary-value" style="text-align: right; max-width: 60%; word-break: break-all;">
+            {{model.pincode ? model.pincode + ', ' : ''}}{{model.city || ''}}
+          </span>
+        </div>
+
+        <!-- Method -->
+        <div class="summary-item">
+          <div class="summary-label-row">
+            <ion-icon name="bicycle-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Receiving Method</span>
+          </div>
+          <span class="method-badge">{{ model.pickup_required ? 'Delivery by Khanaa' : 'Self Pickup' }}</span>
+        </div>
+
+        <!-- Available Slots -->
+        <div class="summary-item" *ngIf="model.pickup_required && model.slots?.length">
+          <div class="summary-label-row">
+            <ion-icon name="time-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Available Slots</span>
+          </div>
+          <span class="summary-value inline-slots">
+            <ng-container *ngFor="let slot of model.slots; let i = index">
+              {{ convertToAMPM(slot.start_time) }}–{{ convertToAMPM(slot.end_time) }}<span
+                *ngIf="i < model.slots.length - 1">, </span>
+            </ng-container>
+          </span>
+        </div>
+      </div>
+
+      <!-- Availability checking spinner -->
+      <div class="availability-checking-row" *ngIf="model.availability_checking">
+        <ion-spinner name="crescent" class="avail-spinner"></ion-spinner>
+        <span class="avail-checking-text">Checking delivery service for your pincode...</span>
+      </div>
+
+      <!-- Unavailability error banner -->
+      <div class="unavailability-banner"
+        *ngIf="!model.availability_checking && !model.delivery_available && model.availability_msg">
+        <ion-icon name="warning-outline" class="unavail-icon"></ion-icon>
+        <div class="unavail-text-block">
+          <span class="unavail-title">Delivery Not Available</span>
+          <span class="unavail-msg">{{model.availability_msg}}</span>
+          <span class="unavail-msg" *ngIf="!model.pickup_required" style="display:block; margin-top:4px;">
+            Switched to Self Pickup for this location.
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="search_type!='' && !model.show_map && !model.location_selected">
+    <ion-img src="../assets/images/loader.gif" style="height: 100px;text-align: center;margin-top: 50%;"></ion-img>
+    <h5 class="size_15 regular green center">{{model.key_text1}}</h5>
+  </div>
 </ion-content>
 
-<app-footer [currentRoute]="'/screen-food-screen-two'"></app-footer>
+<div class="app_button" *ngIf="!model.search && model.location_selected">
+  <button class="app_btn"
+    [class.app_btn_disabled]="model.pickup_required && !model.delivery_available && !model.availability_checking"
+    (click)="model.pickup_required && !model.delivery_available ? null : confirm_process()">
+    <span>Search Food</span>
+  </button>
+</div>
+<div class="app_button" *ngIf="model.search">
+  <button class="app_btn"><ion-spinner class="current_location_sppiner"></ion-spinner></button>
+</div>
+
+<div *ngIf="search_type==''">
+  <app-footer [currentRoute]="'/search-food-screen-two'"></app-footer>
+</div>

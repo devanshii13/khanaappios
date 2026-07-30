@@ -1,138 +1,77 @@
-
 <app-captcha></app-captcha>
-<ion-content>
-
-  <!-- <div class="ion-padding" style="margin-left: 20px; margin-top: -15px;">
-    <div class="map-icon">
-      <img src="assets/images/location_black.svg">
+<ion-content class="accept-page-content">
+  <div class="accept-page-layout" *ngIf="pageReady">
+    <div [class.hidden]="!mapLoaded" class="transport-row">
+      <div class="btn-group transport-group">
+        <button class="grey regular btn4" id="btn_drive_dup">
+          <div class="donor_icon" (click)="calculate_route('DRIVING', 2)">
+            <img src="assets/images/{{model.bike_image}}">
+          </div>
+          <div class="grey size_12" id="text_bike_time_dup">{{model.drive_time}}</div>
+        </button>
+        <button class="grey regular btn4" id="btn_bus_dup">
+          <div class="donor_icon" (click)="calculate_route('TRANSIT', 2)">
+            <img src="assets/images/{{model.bus_image}}">
+          </div>
+          <div class="grey size_12" id="text_bus_time_dup">{{model.public_time}}</div>
+        </button>
+        <button class="grey regular btn4" id="btn_walk_dup">
+          <div class="donor_icon" (click)="calculate_route('WALKING', 2)">
+            <img src="assets/images/{{model.walk_image}}">
+          </div>
+          <div class="grey size_12" id="text_walk_time_dup">{{model.walk_time}}</div>
+        </button>
+      </div>
     </div>
-    <div class="map_desc">      
-      <div class="regular size_12">
-        {{model.colony_name}}
-      </div> 
+    <center [class.hidden]="mapLoaded" class="current_location_spinner_position" id="add_location_spinner">
+      <ion-spinner class="current_location_sppiner"></ion-spinner>
+    </center>
+    <div class="map-wrap">
+      <div #map id="map"></div>
     </div>
-  </div> -->
-  <div class="custom_map_design">
-  <div style="margin-left: 20px;">
-    <div class="map-icon">
-      <ion-icon name="warning-outline" style="font-size: 14px; margin-top: 10px;"></ion-icon>
-    </div>
-    <div class="map_desc">      
-      <div class="regular size_12">
-        Wearning a mask in some public spaces is required due to COVID - 19
-      </div> 
-    </div>
-  </div>
-  <div class="ion-padding res_ion_padding">
-    <div class="btn-group" style="margin-top: -12px;">
-      <button class="grey regular btn4" id="btn_drive_dup">
-        <div class="donor_icon" (click)="calculate_route('DRIVING', 2)">
-          <img src="assets/images/{{model.bike_image}}">
-          <!--<img src="assets/images/icon_donor_bike_white.svg">-->
-        </div>
-        <div class="grey size_12" id="text_bike_time_dup">
-          {{model.drive_time}}
-        </div>
-      </button>
-
-      <button class="grey regular btn4" id="btn_bus_dup">
-        <div class="donor_icon" (click)="calculate_route('TRANSIT', 2)">
-          <img src="assets/images/{{model.bus_image}}">
-          <!-- <img src="assets/images/icon_donor_bus_white.svg"> -->
-        </div>
-        <div class="grey size_12" id="text_bus_time_dup">
-          {{model.public_time}}
-        </div>
-      </button>
-
-      <button class="grey regular btn4" id="btn_walk_dup">
-        <div class="donor_icon" (click)="calculate_route('WALKING', 2)">
-          <img src="assets/images/{{model.walk_image}}">
-          <!--<img src="assets/images/icon_donor_walk_white.svg">-->
-        </div>
-        <div class="grey size_12" id="text_walk_time_dup">
-         {{model.walk_time}}
-        </div>
-      </button>      
-      
+    <div [class.hidden]="!mapLoaded" class="donor-message-block">
+      <ion-row class="info-header-row">
+        <ion-col size="7">
+          <p class="travel-summary">{{time_c}} <span>({{distance_c}})</span></p>
+        </ion-col>
+        <ion-col size="5" class="ion-text-end">
+          <a class="size_14 medium direction" (click)="openMap()">
+            <ion-icon name="navigate-outline"></ion-icon> {{model.key_text10}}
+          </a>
+        </ion-col>
+      </ion-row>
+      <ul class="donor-details-list">
+        <li class="li_new">{{model.key_text12}} {{model.food_type | foodType}} {{model.key_text13}} {{model.key_text14}}
+          {{model.total_food_for}} {{model.key_text15}}</li>
+        <li class="donor-name-line">{{model.key_text1}} - {{model.username}}</li>
+        <a class="size_14 medium call" (click)="call()">{{model.key_text11}}</a>
+      </ul>
     </div>
   </div>
-  <div #map id="map"></div>
-  <div class="ion-padding theme_width theme_width_new">
-    <div class="" style="margin-bottom: 10px;" >
-      <ion-row>
-      <ion-col size="6">
-        <p class="regular medium size_14 green line-height-0">{{time_c}} <span class="grey size_14">({{distance_c}})</span></p>
+</ion-content>
+<ion-footer [class.hidden]="!mapLoaded || !pageReady" class="accept-page-footer">
+  <div class="pickup-info-banner" *ngIf="model.borzo_available || model.eta_display">
+    <div class="pickup-chip" *ngIf="model.eta_display">
+      <ion-icon name="time-outline"></ion-icon>
+      <span>ETA <strong>{{ model.eta_display }}</strong></span>
+    </div>
+    <div class="pickup-chip covered">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span>Covered by Khanaa</span>
+    </div>
+  </div>
+  <div class="medium size_16">
+    <ion-row>
+      <ion-col size="6" *ngIf="!model.hide_cancel_after_rider">
+        <button class="app_btn custom_reject_btn new_btn_css" (click)="pickup_status(0)">{{model.key_text2}}</button>
       </ion-col>
-      <ion-col size="6">
-        <a class="size_14 medium direction" style="float: right;" (click)="openMap()"><ion-icon name="navigate-outline"></ion-icon> {{model.key_text10}}</a>
+      <ion-col [size]="model.hide_cancel_after_rider ? 12 : 6">
+        <button class="app_btn custom_accept_btn new_btn_css" [disabled]="model.checking_borzo"
+          (click)="pickup_status(1)">
+          <ion-spinner *ngIf="model.checking_borzo" name="crescent" style="height: 20px; width: 20px;"></ion-spinner>
+          <span *ngIf="!model.checking_borzo">{{model.key_text3}}</span>
+        </button>
       </ion-col>
-      </ion-row>
-      
-       
-    </div>  
-    <ul class="size_14 medium">
-      <li class="li_new">{{model.key_text12}} {{model.food_type  | foodType}} {{model.key_text13}} {{model.key_text14}} {{model.total_food_for}} {{model.key_text15}}</li>
-      <li style="padding-right: 100px;">{{model.key_text1}} - {{model.username}}</li>      
-       <a class="size_14 medium call" (click)="call()">{{model.key_text11}}</a> 
-	   
-    </ul>
-    <!-- <div class="grey_buttons">  
-      <ion-row>
-        <ion-col size="6">
-            <button class="app_btn custom_reject_btn new_btn_css" (click)="pickup_status(0)">{{model.key_text2}}</button>
-         
-        </ion-col>
-        <ion-col size="6">
-            <button class="app_btn custom_accept_btn new_btn_css" (click)="pickup_status(1)">{{model.key_text3}}</button>
-         
-        </ion-col>
-      </ion-row>
-    </div> -->
-
+    </ion-row>
   </div>
-</div>
- 
-  
-  </ion-content>
-  <ion-footer style="padding-top: 0px!important;">
-    <div class="medium size_16">
-      <ion-row>
-        <ion-col size="6">
-          <button class="app_btn custom_reject_btn new_btn_css"  (click)="pickup_status(0)">{{model.key_text2}}</button>
-        </ion-col>
-        <ion-col size="6">
-          <button class="app_btn custom_accept_btn new_btn_css"  (click)="pickup_status(1)">{{model.key_text3}}</button>
-        </ion-col>
-      </ion-row>
-    </div>
-    <!-- <div class="app_button">
-      <a routerLink="/get-food-nearest-donors-two/{{model.add_id}}/{{model.r_lat}}/{{model.r_lon}}/{{model.r_id}}/{{model.mode}}/{{model.d_food_type}}/{{model.getFood_id}}">
-        <button class="app_btn">{{model.key_text1}}</button>
-      </a>
-    </div> -->
-
-  </ion-footer> 
-  <!-- <ion-footer>    
-    <ion-toolbar>    
-        <ion-segment value="home" color="transparent">
-      <ion-segment-button value="home" [routerLink]="['/home']">
-        <img src="assets/images/red_footer_home.svg">
-        <ion-label class="size_12 medium" color="tertiary">{{model.key_text4}}</ion-label>    
-      </ion-segment-button>
-      <ion-segment-button value="activity" [routerLink]="['/activity-normal']">
-        <img src="assets/images/grey_footer_activity.svg">
-        <ion-label class="size_12 medium">{{model.key_text5}}</ion-label>    
-      </ion-segment-button>
-      <ion-segment-button value="volunteer" *ngIf="model.is_volunteer== 1 " [routerLink]="['/volunteer-detail']">
-       
-        <img src="assets/images/grey_footer_volunteer.svg">
-        <ion-label class="size_12 medium">{{model.key_text6}}</ion-label>    
-      </ion-segment-button>
-    </ion-segment>    
-    </ion-toolbar>
-  </ion-footer>  -->
-
-
- 
-  
+</ion-footer>

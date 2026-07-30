@@ -1,0 +1,452 @@
+#map {
+    width: 100%;
+    height: 350px;
+    border-radius: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.search_food_bg {
+    border-radius: 15px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    background: #fff !important;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.btn_disabled_class {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.italic {
+    font-style: italic;
+}
+
+.slot-wrapper {
+  margin-top: 8px;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.slot-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.slot-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 0.3px;
+}
+
+.slot-item {
+  white-space: nowrap;
+}
+
+.dot {
+  margin: 0 2px;
+}
+
+/* ==========================================================================
+   Selection / Drop Container View Styles (How would you like to receive...)
+   ========================================================================== */
+.pickup-content {
+  --background: #f5f7f6;
+}
+
+.drop-container {
+  padding: 24px 20px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+// Back button row
+.back-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.back-icon {
+  font-size: 20px;
+  color: #E8604C;
+}
+
+.back-label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #E8604C;
+  font-family: medium;
+}
+
+// Hero Section
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+  line-height: 1.35;
+  font-family: medium;
+}
+
+.hero-subtitle {
+  font-size: 14px;
+  color: #888;
+  margin: 0;
+  font-weight: 400;
+}
+
+// Options container
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+// Single option card
+.option-card {
+  display: flex;
+  align-items: center;
+  padding: 18px 16px;
+  background: #ffffff;
+  border: 1.5px solid #ececec;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+
+  &.selected-card {
+    border-color: #0d8a72;
+  }
+}
+
+// Avatars
+.icon-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  margin-right: 14px;
+  flex-shrink: 0;
+}
+
+.donee-avatar {
+  background: linear-gradient(135deg, #d4f2ea 0%, #a7e3d4 100%);
+}
+
+.donee-icon {
+  font-size: 26px;
+  color: #0d8a72;
+}
+
+.khanaa-avatar {
+  background: linear-gradient(135deg, #d4f2ea 0%, #a7e3d4 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Card Text
+.card-text {
+  flex: 1;
+  margin-right: 8px;
+}
+
+.card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 4px;
+}
+
+.card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.new-badge {
+  font-size: 10px;
+  background: linear-gradient(135deg, #0d8a72, #12a98a);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 8px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  box-shadow: 0 2px 6px rgba(13,138,114,0.3);
+}
+
+.card-desc {
+  font-size: 12px;
+  color: #999;
+  line-height: 1.4;
+}
+
+// Radio Circle indicator
+.radio-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background-color 0.2s;
+  flex-shrink: 0;
+
+  &::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.15s ease-in-out;
+  }
+
+  &.radio-checked {
+    border-color: #0d8a72;
+    background-color: #0d8a72;
+
+    &::after {
+      transform: scale(1);
+    }
+  }
+}
+
+// Continue Button big
+.big_continue_btn {
+  width: 100%;
+  height: 48px;
+  background: #0d8a72;
+  color: #fff;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 138, 114, 0.2);
+  transition: background-color 0.15s ease;
+
+  &:active {
+    background: #0b7561;
+  }
+}
+
+// Info chip
+.info-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 18px 20px 0;
+  padding: 10px 18px;
+  background: #e8f7f3;
+  border-radius: 12px;
+  color: #0d8a72;
+  font-size: 13px;
+  font-weight: 600;
+
+  ion-icon {
+    font-size: 16px;
+  }
+}
+
+/* ==========================================================================
+   Modern Search Summary Card styles
+   ========================================================================== */
+.modern_summary_card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1.5px solid #ececec;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  padding: 22px 20px;
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.summary-icon-container {
+  width: 42px;
+  height: 42px;
+  background: #e8f7f3;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-header-icon {
+  font-size: 22px;
+  color: #0d8a72;
+}
+
+.summary-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #2D3748;
+  margin: 0;
+}
+
+.summary-subtitle {
+  font-size: 12px;
+  color: #718096;
+  margin: 2px 0 0 0;
+}
+
+.summary-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.summary-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-icon {
+  font-size: 18px;
+  color: #A0AEC0;
+}
+
+.summary-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #555555;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2D3748;
+}
+
+.inline-slots {
+  max-width: 60%;
+  text-align: right;
+  word-break: break-all;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.method-badge {
+  background: #e8f7f3;
+  color: #0d8a72;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+.availability-checking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 10px 14px;
+  background: #f7fafc;
+  border-radius: 10px;
+
+  .avail-spinner {
+    font-size: 20px;
+    color: #4A5568;
+  }
+
+  .avail-checking-text {
+    font-size: 13px;
+    color: #4A5568;
+    font-weight: 500;
+  }
+}
+
+.unavailability-banner {
+  display: flex;
+  gap: 12px;
+  background-color: #FFF5F5;
+  border: 1px solid #FED7D7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 20px;
+  
+  .unavail-icon {
+    font-size: 22px;
+    color: #E53E3E;
+    flex-shrink: 0;
+  }
+  
+  .unavail-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  
+  .unavail-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #C53030;
+  }
+  
+  .unavail-msg {
+    font-size: 13px;
+    color: #C53030;
+    line-height: 1.45;
+  }
+}
+
+// Disabled state for Search Food button
+.app_btn_disabled {
+  background: #CBD5E0 !important;
+  color: #718096 !important;
+  cursor: not-allowed;
+  pointer-events: none;
+  box-shadow: none !important;
+}

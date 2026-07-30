@@ -1,19 +1,78 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+
+.location-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.content-loading {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.location-top-bar {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding-top: max(8px, env(safe-area-inset-top, 0px));
+}
+
+.location-top-bar #my_custom_on {
+  margin-top: 0;
+  padding-top: 8px;
+}
+
 #map {
-    width: 100%;
-    height: 53%;
-	margin-top: 18px;
+  width: 100%;
+  height: 42vh;
+  min-height: 220px;
+  margin-top: 8px;
+  touch-action: none;
+  border-radius: 12px;
+  overflow: hidden;
 }
-.current_location_page_show{
-	display:none;
+
+ion-content.current_location_page_show {
+  --overflow: hidden;
+  --padding-top: 0;
+  flex: 1;
 }
-.current_location_sppiner{
-	--color:#419B95;
+
+.location-footer {
+  flex-shrink: 0;
+
+  ion-toolbar {
+    --padding-top: 0;
+    --padding-bottom: 8px;
+    --min-height: auto;
+  }
+
+  .app_btn {
+    margin-top: 0;
+    margin-bottom: 8px;
+  }
 }
-.current_location_spinner_position{
-	margin-top:250px;
+
+.location-address {
+  padding-bottom: 8px;
 }
-.map_desc_text{
-	text-overflow: ellipsis;
+
+.current_location_sppiner {
+  --color: #419B95;
+}
+
+.map_desc_text {
+    text-overflow: ellipsis;
     display: -webkit-box;
     -webkit-line-clamp: 3;
     overflow: hidden;

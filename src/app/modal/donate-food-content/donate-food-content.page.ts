@@ -17,6 +17,9 @@ export class DonateFoodContentPage implements OnInit {
   @Input() nonveg;
   @Input() veg_food;
   @Input() nonveg_food;
+  @Input() pickup_required;
+  @Input() receiver_matched;
+  @Input() matched_receiver_name;
 model:any={};
   constructor(
     private modalController: ModalController,
@@ -57,6 +60,23 @@ model:any={};
         this.model.key_text6 = item6[lang_code];
         let item7 = res.find(i => i.key_text === 'THANK_YOU_FOR_YOUR_KIND_GESTURE');
         this.model.key_text7 = item7[lang_code];
+        let personKey = res.find(i => i.key_text === 'PERSON');
+        this.model.person_label = personKey ? personKey[lang_code] : this.model.key_text3;
+
+        let item8 = res.find(i => i.key_text === 'KINDLY_PACK');
+        this.model.key_text8 = item8[lang_code];
+        let item9 = res.find(i => i.key_text === 'VEG');
+        this.model.key_text9 = item9[lang_code];
+        let item10 = res.find(i => i.key_text === 'NON_VEG');
+        this.model.key_text10 = item10[lang_code];
+        let item11 = res.find(i => i.key_text === 'FOOD_FOR');
+        this.model.key_text11 = item11[lang_code];
+        let item12 = res.find(i => i.key_text === 'COMING_FOR_PICKUP');
+        this.model.key_text12 = item12[lang_code];
+
+        if (this.receiver_matched && this.pickup_required) {
+          this.model.key_text5 = "Wait for a rider! We've booked a pickup. Please pack your food properly. Check Activity for status updates.";
+        }
       
       // let item1 = res.find(i => i.key_text === 'THANK_YOU_FOR_YOUR_KIND_GESTURE');
       //   this.model.key_text1 = item1[lang_code]; 
@@ -72,6 +92,10 @@ model:any={};
     const onClosedData: string = "Wrapped Up!";
     await this.modalController.dismiss(onClosedData);
 	this.router.navigate(['/home']);
+  }
+
+   peopleLabel(count: number): string {
+    return count === 1 ? this.model.person_label : this.model.key_text3;
   }
 
 } 

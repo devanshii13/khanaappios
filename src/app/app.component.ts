@@ -148,8 +148,9 @@ isLanguageChanged: boolean;
       
   
 	this.fetch.isLanguageChanged.subscribe( value => {
+    console.log(value)
 	    this.isLanguageChanged = value;
-		var lang_code = JSON.parse(localStorage.getItem('lang'));
+		var lang_code = JSON.parse(localStorage.getItem('lang')) || 'en';
     this.fetch.getKeyText(lang_code).subscribe(rs => {
       this.storage.setScope(rs);
       let res = this.storage.getScope();

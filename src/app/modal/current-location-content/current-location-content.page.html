@@ -1,33 +1,38 @@
-<center class="current_location_spinner_position" id="location_spinner"><ion-spinner class="current_location_sppiner"></ion-spinner></center>
-<ion-content class="current_location_page_show">
-	<div class="map current_location">
-		<img src="assets/images/close_btn.svg" class="close_btn" (click)="closeModal()">
-	</div>
-	<div id="my_custom_on" style="margin-top: 18px;">
-		<input type="text" id="my_test" (keyup)="updateSources()" placeholder="{{model.key_text2}}"> <ion-icon *ngIf="autocomplete.start" (click)="blank('start')" class="cross_on_the" name="close-outline"></ion-icon>
-	  </div>
-	  <ion-button shape="round" id="saved" class="address_button" *ngFor="let add of saved_address;" (click)="addMarker2(add.latitude, add.longitude)" fill="outline">{{add.adress_type}}</ion-button>
-	<div #map id="map"></div> 
-	<div class="ion-padding">
-    <div class="map-icon">
-		<img src="assets/images/location_red.svg">
-    </div>
-    <div class="map_desc">
-		<div class="size_16 map_desc_text"> 
-			{{model.colony_name}}
+<div class="location-loading-overlay" *ngIf="mapLoading">
+	<ion-spinner class="current_location_sppiner"></ion-spinner>
+</div>
+
+<ion-content class="current_location_page_show" [scrollY]="false" [class.content-loading]="mapLoading">
+	<div class="location-top-bar">
+		<div class="map current_location">
+			<img src="assets/images/close_btn.svg" class="close_btn" (click)="closeModal()">
 		</div>
-    </div>
-  </div>
-  
+		<div id="my_custom_on">
+			<input type="text" id="my_test" placeholder="{{model.key_text2}}">
+			<ion-icon *ngIf="autocomplete.start" (click)="blank('start')" class="cross_on_the" name="close-outline"></ion-icon>
+		</div>
+		<ion-button shape="round" id="saved" class="address_button" *ngFor="let add of saved_address;" (click)="addMarker2(add.latitude, add.longitude)" fill="outline">{{add.adress_type}}</ion-button>
+	</div>
+	<div #map id="map"></div>
+	<div class="ion-padding location-address">
+		<div class="map-icon">
+			<img src="assets/images/location_red.svg">
+		</div>
+		<div class="map_desc">
+			<div class="size_16 map_desc_text">
+				{{model.colony_name}}
+			</div>
+		</div>
+	</div>
 </ion-content>
-  
-<ion-footer class="current_location_page_show">
-    <ion-toolbar>    
+
+<ion-footer class="current_location_page_show location-footer" [class.content-loading]="mapLoading">
+	<ion-toolbar>
 		<div class="app_button">
 			<span (click)="current_location()">
 				<button class="app_btn">{{model.key_text1}}</button>
 			</span>
 		</div>
-    </ion-toolbar>
+	</ion-toolbar>
 </ion-footer>
   

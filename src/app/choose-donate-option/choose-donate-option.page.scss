@@ -1,0 +1,168 @@
+// ── Top Navigation Bar ───────────────────────────────────────────────────────
+.top-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  margin-bottom: 24px;
+}
+
+.nav-back-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #ff5252;
+  font-weight: 700;
+  font-size: 17px;
+
+  .back-arrow-icon {
+    font-size: 20px;
+    position: relative;
+    top: 1px;
+  }
+}
+
+.nav-notification-button {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .bell-icon-sharp {
+    font-size: 26px;
+    color: #ff5252;
+  }
+
+  .bell-badge-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #000000;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// ── Page Titles ──────────────────────────────────────────────────────────────
+.deliv-main-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  text-align: center;
+  line-height: 1.35;
+  margin-bottom: 32px;
+}
+
+// ── Delivery Cards ────────────────────────────────────────────────────────────
+.deliv-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 5rem;
+}
+
+.deliv-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+
+  &:hover {
+    border-color: #0d8a72;
+    box-shadow: 0 6px 14px rgba(13, 138, 114, 0.08);
+
+    .deliv-arrow-indicator {
+      color: #0d8a72;
+      transform: translateX(2px);
+    }
+  }
+
+  &:active {
+    transform: scale(0.98);
+    border-color: #0d8a72;
+    background: #fbfdfc;
+    box-shadow: 0 2px 6px rgba(13, 138, 114, 0.1);
+
+    .deliv-arrow-indicator {
+      color: #0d8a72;
+    }
+  }
+}
+
+.deliv-icon-wrapper {
+  background: #f0fdf4;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .deliv-icon-element {
+    font-size: 26px;
+    color: #0d8a72;
+  }
+}
+
+.deliv-details-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.deliv-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deliv-card-main-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.deliv-badge-new {
+  background: #0d8a72;
+  color: #ffffff;
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  border-radius: 12px;
+  padding: 2px 6px;
+  letter-spacing: 0.4px;
+}
+
+.deliv-card-subtitle {
+  font-size: 12.5px;
+  color: #718096;
+  margin-top: 4px;
+  line-height: 1.4;
+  font-weight: 400;
+}
+
+.deliv-arrow-indicator {
+  font-size: 20px;
+  color: #a0aec0;
+  transition: all 0.15s ease-in-out;
+  flex-shrink: 0;
+  margin-left: auto;
+}

@@ -1,3 +1,421 @@
 ion-col {
     padding: 0;
 }
+
+#map {
+    width: 100%;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.map_desc_box {
+    background: #fff;
+    padding: 12px 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f0f0f0;
+}
+
+ion-toggle {
+    --handle-background: #fff;
+    --handle-background-checked: #fff;
+    --handle-spacing: 4px;
+    --background: #ddd;
+    --background-checked: #419B95;
+    width: 50px;
+    height: 28px;
+}
+
+.availability_msg {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
+.slot-wrapper {
+  margin-top: 8px;
+  padding-top: 4px; /* 👈 subtle internal spacing */
+}
+
+.slot-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 500;
+  color: #555;
+}
+
+.slot-list {
+//  margin-left: 22px;
+  margin-top: 2px;
+  font-size: 11px;
+  color: #888;
+  letter-spacing: 0.3px;
+}
+
+
+.modern_summary_card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  border: 1px solid #f0f0f0;
+  margin-top: 20px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.summary-icon-container {
+  background: #EAF4F3;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+}
+
+.summary-header-icon {
+  font-size: 24px;
+  color: #419B95;
+}
+
+.summary-header-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #2D3748;
+  margin: 0;
+}
+
+.summary-subtitle {
+  font-size: 13px;
+  color: #718096;
+  margin: 2px 0 0 0;
+}
+
+.summary-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f7f9fa;
+}
+
+.summary-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-icon {
+  font-size: 18px;
+  color: #a0aec0;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: #718096;
+  font-weight: 500;
+}
+
+.summary-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.mono-text {
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  background: #f7f9fa;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.food-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.veg-badge {
+  background: #EBF8F2;
+  color: #2F855A;
+}
+
+.nonveg-badge {
+  background: #FFF5F5;
+  color: #C53030;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.dot-veg {
+  background: #38A169;
+}
+
+.dot-nonveg {
+  background: #E53E3E;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-confirmed {
+  background: #E6FFFA;
+  color: #00A389;
+}
+
+.method-badge {
+  background: #EDF2F7;
+  color: #4A5568;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.card-divider {
+  height: 1px;
+  background: #EDF2F7;
+  margin: 20px 0;
+}
+
+.pickup-info-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pickup-info-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #4A5568;
+  margin: 0 0 4px 0;
+}
+
+.pickup-detail-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.pickup-detail-icon {
+  font-size: 18px;
+  color: #419B95;
+  margin-top: 2px;
+}
+
+.pickup-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pickup-detail-label {
+  font-size: 12px;
+  color: #718096;
+}
+
+.pickup-slots-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot-pill {
+  font-size: 12px;
+  font-weight: 500;
+  color: #2D3748;
+  background: #F7FAFC;
+  border: 1px solid #E2E8F0;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.pickup-estimates-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.estimate-item {
+  background: #F7FAFC;
+  border: 1px solid #EDF2F7;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.estimate-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.estimate-icon {
+  font-size: 16px;
+  color: #3182CE;
+}
+
+.charges-icon {
+  color: #38A169;
+}
+
+.estimate-label {
+  font-size: 11px;
+  color: #718096;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.estimate-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #2D3748;
+}
+
+.charges-value {
+  color: #38A169;
+}
+
+.pickup-charge-note {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #4A5568;
+}
+
+.loading-text {
+  font-style: italic;
+  color: #A0AEC0;
+  font-weight: normal;
+}
+
+.estimate-spinner {
+  width: 14px;
+  height: 14px;
+}
+
+// Availability checking inline row
+.availability-checking-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: #F7FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+}
+
+.avail-spinner {
+  width: 18px;
+  height: 18px;
+  color: #419B95;
+}
+
+.avail-checking-text {
+  font-size: 13px;
+  color: #718096;
+}
+
+// Unavailability banner
+.unavailability-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: #FFF5F5;
+  border: 1px solid #FED7D7;
+  border-radius: 14px;
+}
+
+.unavail-icon {
+  font-size: 22px;
+  color: #E53E3E;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.unavail-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.unavail-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #C53030;
+}
+
+.unavail-msg {
+  font-size: 13px;
+  color: #742A2A;
+  line-height: 1.4;
+}
+
+// Disabled confirm button
+.app_btn_disabled {
+  background: #CBD5E0 !important;
+  color: #718096 !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+}
+
+// Spinner inside button
+.btn-spinner {
+  width: 16px;
+  height: 16px;
+  vertical-align: middle;
+  margin-right: 6px;
+  color: white;
+}
+
+

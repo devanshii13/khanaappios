@@ -1,26 +1,61 @@
-
 <app-captcha></app-captcha>
 <ion-content style="display: flex;flex-direction: column;height: 100%;">
-<div class="ion-padding theme_width my_custome_theme_width">
-  <div class="big_content_new noto_medium size_18">
+
+  <!-- Main Option Buttons Screen -->
+  <div class="ion-padding theme_width my_custome_theme_width" *ngIf="!model.show_delivery_method">
+    <div class="big_content_new noto_medium size_18">
+    </div>
+    <div class="horizontal_center">
+      <a (click)="handleNearby()">
+        <button class="app_btn big button">
+          {{model.key_text1}}
+        </button>
+      </a>
+      <a (click)="openOnTheWay()">
+        <button class="app_btn big button">
+          {{model.key_text2}}
+        </button>
+      </a>
+    </div>
   </div>
-  <div class="horizontal_center">
-    <a (click)="openModalCurrentLocation()">
-      <button class="app_btn big button">
-        {{model.key_text1}}
-      </button>
-    </a>
-    <a (click)="openOnTheWay()">
-      <button class="app_btn big button">
-        {{model.key_text2}}
-      </button>  
-    </a>
+
+  <!-- Delivery Method Selection Screen -->
+  <div class="ion-padding theme_width my_custome_theme_width" *ngIf="model.show_delivery_method">
+    <div class="deliv-container">
+      <h2 class="deliv-main-title">How would you like to<br>deliver the food?</h2>
+
+      <div class="deliv-cards-list">
+        <!-- Option: Drop Myself -->
+        <div class="deliv-card" (click)="selectDeliveryMethod('drop_myself')">
+          <div class="deliv-icon-wrapper">
+            <ion-icon name="car-sport-sharp" class="deliv-icon-element"></ion-icon>
+          </div>
+          <div class="deliv-details-wrapper">
+            <div class="deliv-label-row">
+              <span class="deliv-card-main-title">I will drop myself</span>
+            </div>
+            <span class="deliv-card-subtitle">I will personally drop the food to volunteer</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="deliv-arrow-indicator"></ion-icon>
+        </div>
+
+        <!-- Option: Deliver via Khanaa -->
+        <div class="deliv-card" (click)="selectDeliveryMethod('deliver_khanaa')">
+          <div class="deliv-icon-wrapper">
+            <ion-icon name="bicycle-sharp" class="deliv-icon-element"></ion-icon>
+          </div>
+          <div class="deliv-details-wrapper">
+            <div class="deliv-label-row">
+              <span class="deliv-card-main-title">Deliver via Khanaa</span>
+              <span class="deliv-badge-new">NEW</span>
+            </div>
+            <span class="deliv-card-subtitle">Khanaa delivery partner will drop the food</span>
+          </div>
+          <ion-icon name="chevron-forward-outline" class="deliv-arrow-indicator"></ion-icon>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
 
 </ion-content>
-
 <app-footer [currentRoute]="'/choose-donate-option'"></app-footer>
-
-  
-

@@ -4,7 +4,6 @@ import { FetchService } from '../fetch.service';
 import { StorageService } from '../storage.service'; 
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 import { Geolocation,GeolocationOptions ,Geoposition ,PositionError } from '@ionic-native/geolocation/ngx';
-import { NotificationPage } from '../modal/notification/notification.page';
 import { ModalController } from '@ionic/angular';
 import { RejectGetFoodRequestPage } from '../modal/reject-get-food-request/reject-get-food-request.page';
 import { ErrorMsgService } from '../error-msg.service';
@@ -32,7 +31,9 @@ polylines = [];
 no_of_person: any;
 additional_msg_1 : any = "";
 additional_msg_2 : any = "";
-	disableButton: boolean = false;
+disableButton: boolean = false;
+mapLoaded: boolean = false;
+private mapInitialRouteDone = false;
   constructor(
 	public modalController: ModalController,
 	private http: HttpClient,
@@ -95,8 +96,11 @@ additional_msg_2 : any = "";
 			this.model.key_text15 = item15[lang_code];
 		let item16 = res.find(i => i.key_text === 'GET_FOOD_MSG_5');
 			this.model.key_text16 = item16[lang_code];
-		let item17 = res.find(i => i.key_text === 'FOOD_ALREADY_DONATED_TO_OTHER_DONEES');
-			this.model.key_text17 = item17[lang_code];	
+		
+			let item17 = res.find(i => i.key_text === 'FOOD_ALREADY_DONATED_TO_OTHER_DONEES');
+			this.model.key_text17 = item17[lang_code];
+
+			
 	//});
 	var data = this.route.snapshot.params['data'];
 	var data2 = this.route.snapshot.params['data2'];
@@ -124,6 +128,7 @@ additional_msg_2 : any = "";
 	}if(this.model.d_food_type == 3){
 		this.model.food_name = this.model.key_text12+'/'+ this.model.key_text13+' '+this.model.key_text14;;
 	}
+	console.warn(x?.data);
 	if(x.data.time_distance_walking.rows[0].elements[0].status == 'OK'){
 		this.model.walk_time = x.data.time_distance_walking.rows[0].elements[0].duration.text;
 		this.model.walk_distance = x.data.time_distance_walking.rows[0].elements[0].distance.text;
@@ -138,12 +143,20 @@ additional_msg_2 : any = "";
 		this.model.drive_time = 0;
 		this.model.drive_distance = 0;
 	}
-	if(x.data.time_distance_transit.rows[0].elements[0].status=='OK'){
+	if(x?.data.time_distance_transit.rows[0].elements[0].status=='OK'){
 		this.model.public_time = x.data.time_distance_transit.rows[0].elements[0].duration.text;
 		this.model.public_distance = x.data.time_distance_transit.rows[0].elements[0].distance.text;
 	}else{
 		this.model.public_time = 0;	
 		this.model.public_distance = 0;	
+	}
+
+	// Safety: third-party matches must stay within admin Coverage Range (KM).
+	if (localStorage.getItem('pickup_required') === '1' && !this.isWithinCoverageRange(x.data)) {
+		const range = localStorage.getItem('coverage_range_km') || '1';
+		this.errorMsg.showModal(`This donation is outside the ${range} km coverage range.`);
+		this.router.navigate(['/home']);
+		return;
 	}
 	
 	this.geolocation.getCurrentPosition().then((resp) => {
@@ -160,9 +173,17 @@ additional_msg_2 : any = "";
 		this.model.directionsService = new google.maps.DirectionsService();
        this.model.directionsDisplay = new google.maps.DirectionsRenderer();
 		this.model.directionsDisplay.setMap(this.map);
+		this.map.addListener('idle', () => {
+			this.mapLoaded = true;
+			if (!this.mapInitialRouteDone) {
+				this.mapInitialRouteDone = true;
+				this.calculate_route('WALKING');
+			}
+		});
+
         //directionsDisplay.setPanel(this.directionsPanel.nativeElement);
 		
-		this.calculate_route('WALKING');
+		
 		
         $("#btn_walk").addClass('active');
         $("#text_walk_time").removeClass('grey');
@@ -180,12 +201,99 @@ additional_msg_2 : any = "";
 		this.additional_msg_2 = "";
 		this.model.number_of_person = this.no_of_person;
 	  }
+
+	  let pickupRequired = localStorage.getItem('pickup_required');
+	  console.log(pickupRequired,"pickupRequired")
+	  if (pickupRequired == '1') {
+		  this.model.borzo_available = false;
+		  this.model.checking_availability = true;
+		  
+		  // Fetch donor and receiver profiles to get phone numbers required by Borzo
+		  let donorId = x.data.app_user_id;
+		  let receiverId = this.model.user_id;
+
+		  this.fetch.profile(JSON.stringify({ 'id': donorId })).subscribe(donorProfile => {
+			  this.model.donor_phone = donorProfile['mobile_no'];
+			  this.model.donor_name = donorProfile['username'];
+			  this.fetch.profile(JSON.stringify({ 'id': receiverId })).subscribe(receiverProfile => {
+				  this.model.receiver_phone = receiverProfile['mobile_no'];
+				  
+				  let donorPhone = this.model.donor_phone ? this.model.donor_phone.replace(/\D/g, '') : '';
+				  if (donorPhone.length === 10) donorPhone = '91' + donorPhone;
+
+				  let receiverPhone = this.model.receiver_phone ? this.model.receiver_phone.replace(/\D/g, '') : '';
+				  if (receiverPhone.length === 10) receiverPhone = '91' + receiverPhone;
+
+				  let borzoCalcData = {
+					  'pickup_address': x.data.colony_name,
+					  'pickup_lat': x.data.latitude,
+					  'pickup_lng': x.data.longitude,
+					  'pickup_pincode': x.data.postalCode,
+					  'pickup_phone': donorPhone,
+					  'drop_address': this.model.rdata.colony_name,
+					  'drop_phone': receiverPhone,
+					  'delivery_address': this.model.rdata.colony_name,
+					  'delivery_lat': this.model.r_lat,
+					  'delivery_lng': this.model.r_lon,
+					  'delivery_pincode': this.model.rdata.postalCode,
+					  'delivery_phone': receiverPhone
+				  };
+
+				  this.fetch.checkBorzoAvailability(borzoCalcData).subscribe(res => {
+					  this.model.checking_availability = false;
+					  if (res.status_code == 200 && res.response && res.response.is_successful) {
+						  this.model.borzo_available = true;
+						  this.model.delivery_charge = res.response.order.payment_amount;
+						  this.model.delivery_fee = res.response.order.delivery_fee_amount;
+						  this.model.delivery_details = res.response.order.status_description;
+						  
+						  // Update distance and time from Borzo if available
+						  if (res.response.order.points && res.response.order.points.length > 1) {
+							  let deliveryPoint = res.response.order.points[1];
+							  
+							  // Store Borzo data for display
+							  this.model.delivery_point = deliveryPoint;
+							  this.model.eta = deliveryPoint.required_finish_datetime;
+							  this.model.eta_display = this.formatEtaTime(deliveryPoint.required_finish_datetime);
+							  // Do not overwrite Page-1 match distance with Borzo road distance.
+						  }
+
+					  } else {
+						  this.model.borzo_available = false;
+						  let errorMsg = "Borzo delivery is not available for this location.";
+						  if (res.response && res.response.parameter_warnings) {
+							  errorMsg = "Borzo Error: " + JSON.stringify(res.response.parameter_warnings);
+						  }
+						  this.errorMsg.showModal(errorMsg);
+					  }
+				  }, error => {
+					  this.model.checking_availability = false;
+					  this.model.borzo_available = false;
+					  console.error('Borzo availability check failed', error);
+				  });
+			  });
+		  });
+	  } else {
+
+		  this.model.borzo_available = true; // Default to true if pickup not required
+	  }
   }
- 
-  calculate_route(mode){
-	  
-	  var infowindow = new google.maps.InfoWindow();
-	var renderer = new google.maps.DirectionsRenderer({
+
+  private hasValidRouteCoords(): boolean {
+    const rLat = parseFloat(this.model.r_lat);
+    const rLng = parseFloat(this.model.r_lon);
+    const dLat = parseFloat(this.model.d_lat);
+    const dLng = parseFloat(this.model.d_lon);
+    return [rLat, rLng, dLat, dLng].every((value) => !isNaN(value));
+  }
+
+calculate_route(mode){ 
+	if (!this.map || !this.hasValidRouteCoords()) {
+		return;
+	}
+
+var infowindow = new google.maps.InfoWindow();
+var renderer = new google.maps.DirectionsRenderer({
   suppressPolylines: true,
   infoWindow: infowindow,
 });
@@ -323,13 +431,14 @@ additional_msg_2 : any = "";
 		modal.onDidDismiss().then((dataReturned) => {
 		
 		});
-	
 		return await modal.present();
 	  } 
+
 	rejectRequest(){
 		this.disableButton = true;
 		this.openRejectModel();
 	}
+
 	acceptRequest(){
 		this.disableButton = true;
 		this.model.search = true;
@@ -343,15 +452,269 @@ additional_msg_2 : any = "";
 		}
 		data = JSON.stringify({'app_user_id' : this.model.user_id,'donar_id':this.model.total_data.data.app_user_id,'donate_food_id':this.model.total_data.data.id,  'food_type' : this.model.total_data.data.food_type, 'no_of_person' : this.model.number_of_person, 'latitude' : this.model.total_data.data.latitude, 'longitude' : this.model.total_data.data.longitude, 'colony_name' : this.model.total_data.data.colony_name, 'city' : this.model.total_data.data.city, 'state' : this.model.total_data.data.state, 'country' : this.model.total_data.data.country, 'postal_code' : this.model.total_data.data.postalCode, 'notification_type' : 1});
 		localStorage.setItem('temp_total_food',this.model.number_of_person);
+
+		// Persist the exact Page-1 matched location + distances for Page-2.
+		localStorage.setItem('matched_pickup_location', JSON.stringify({
+			latitude: this.model.r_lat,
+			longitude: this.model.r_lon,
+			walk_time: this.model.walk_time,
+			walk_distance: this.model.walk_distance,
+			drive_time: this.model.drive_time,
+			drive_distance: this.model.drive_distance,
+			public_time: this.model.public_time,
+			public_distance: this.model.public_distance,
+			donate_food_id: this.model.add_id
+		}));
+		// Keep receiver_location aligned with the matched Page-1 coords.
+		try {
+			const existing = localStorage.getItem('receiver_location');
+			const location = existing ? JSON.parse(existing) : {};
+			location.latitude = this.model.r_lat;
+			location.longitude = this.model.r_lon;
+			localStorage.setItem('receiver_location', JSON.stringify(location));
+		} catch (e) {
+			localStorage.setItem('receiver_location', JSON.stringify({
+				latitude: this.model.r_lat,
+				longitude: this.model.r_lon
+			}));
+		}
+
 			this.fetch.accept_food(data).subscribe(res => {
 		  if(res.success == true){
 		  this.model.search = false;
-		  localStorage.setItem('res.receiver_food_id',res.receiver_food_id);
-		  this.router.navigate(['/get-food-nearest-donors-two-duplicate',this.model.add_id,this.model.r_lat,this.model.r_lon,this.model.r_id,this.model.mode,this.model.d_food_type,res.receiver_food_id]);
+		  let receiverFoodId = res.receiver_food_id;
+		  localStorage.setItem('res.receiver_food_id', receiverFoodId);
+
+		  // 1. Create Borzo Order immediately on Accept
+		  let pickupRequired = localStorage.getItem('pickup_required');
+		  if (pickupRequired == '1') {
+			  let itemName = (this.model.total_data.data.food_type == 1 || this.model.total_data.data.food_type == 3) ? 'Veg Food' : 'Non-Veg Food';
+			  let donorPhone = this.model.donor_phone ? this.model.donor_phone.replace(/\D/g, '') : '';
+			  if (donorPhone.length === 10) donorPhone = '91' + donorPhone;
+
+			  let receiverPhone = this.model.receiver_phone ? this.model.receiver_phone.replace(/\D/g, '') : '';
+			  if (receiverPhone.length === 10) receiverPhone = '91' + receiverPhone;
+
+			//   let borzoOrderData = {
+			// 	  'donor_id': this.model.total_data.data.app_user_id,
+			// 	  'pickup_address': this.model.total_data.data.colony_name,
+			// 	  'pickup_name': this.model.donor_name || 'Donor',
+			// 	  'pickup_phone': donorPhone,
+			// 	  'pickup_city': this.model.total_data.data.city,
+			// 	  'pickup_state': this.model.total_data.data.state,
+			// 	  'pickup_pincode': this.model.total_data.data.postalCode,
+			// 	  'pickup_lat': this.model.total_data.data.latitude,
+			// 	  'pickup_lng': this.model.total_data.data.longitude,
+			// 	  'receiver_name': this.model.username_r,
+			// 	  'receiver_phone': receiverPhone,
+			// 	  'drop_address': this.model.rdata.colony_name || '',
+			// 	  'drop_name': this.model.username_r || 'NGO',
+			// 	  'drop_phone': receiverPhone,
+			// 	  'delivery_address': this.model.rdata.colony_name || '',
+			// 	  'delivery_city': this.model.rdata.city || '',
+			// 	  'delivery_state': this.model.rdata.state || '',
+			// 	  'delivery_pincode': this.model.rdata.postalCode || '',
+			// 	  'delivery_lat': this.model.rdata.latitude || '',
+			// 	  'delivery_lng': this.model.rdata.longitude || '',
+			// 	  'item_name': itemName,
+			// 	  'units': this.model.number_of_person
+			//   };
+
+
+			let borzoOrderData = {
+
+			// Required to link with donation
+			donate_food_id: this.model.total_data.data.id,
+
+			donor_id: this.model.total_data.data.app_user_id,
+
+			// Pickup
+			pickup_address: this.model.total_data.data.colony_name,
+			pickup_name: this.model.donor_name || 'Donor',
+			pickup_phone: donorPhone,
+
+			// Drop
+			drop_address: this.model.rdata.colony_name || '',
+			drop_name: this.model.username_r || 'NGO',
+			drop_phone: receiverPhone,
+
+			// Optional (keep if you need later)
+			pickup_city: this.model.total_data.data.city,
+			pickup_state: this.model.total_data.data.state,
+			pickup_pincode: this.model.total_data.data.postalCode,
+			pickup_lat: this.model.total_data.data.latitude,
+			pickup_lng: this.model.total_data.data.longitude,
+
+			delivery_city: this.model.rdata.city || '',
+			delivery_state: this.model.rdata.state || '',
+			delivery_pincode: this.model.rdata.postalCode || '',
+			delivery_lat: this.model.r_lat || this.model.rdata.latitude || '',
+			delivery_lng: this.model.r_lon || this.model.rdata.longitude || '',
+
+			item_name: itemName,
+			units: this.model.number_of_person
+		};
+			  this.fetch.createBorzoOrder(borzoOrderData).subscribe(orderRes => {
+				  console.log('Borzo order created on Accept:', orderRes);
+				//   if (orderRes && orderRes.data && orderRes.data.order_id) {
+				// 	  localStorage.setItem('borzo_order_id', orderRes.data.order_id);
+				// 	  localStorage.setItem('borzo_tracking_url', orderRes.data.tracking_url);
+				//   }
+				  if (
+						orderRes &&
+						orderRes.response &&
+						orderRes.response.is_successful
+					) {
+
+						const order = orderRes.response.order;
+
+						localStorage.setItem(
+							'borzo_order_id',
+							order.order_id
+						);
+
+						localStorage.setItem(
+							'borzo_tracking_url',
+							order.points[1].tracking_url
+						);
+
+						// 5-min no-rider clock starts when order is created (app-side; no cron).
+						localStorage.setItem('borzo_rider_wait_until', String(Date.now() + 5 * 60 * 1000));
+						localStorage.setItem('borzo_rider_wait_food_id', String(this.model.total_data.data.id));
+					}
+
+					
+				  // 2. Send notification to donor that order is created and rider is coming
+				  let notifyData = JSON.stringify({
+					  'food_id': this.model.total_data.data.id,
+					  'logged_in_user': this.model.username_r,
+					  'no_of_person': this.model.number_of_person,
+					  'app_user_id': this.model.user_id,
+					  'food_type': this.model.total_data.data.food_type,
+					  'notification_type': 1,
+					  'to': this.model.total_data.data.app_user_id,
+					  'from': this.model.user_id,
+					  'message': "Wait for a rider! We've booked a pickup. Please pack your food properly. Check Activity for pickup updates."
+				  });
+
+				  this.fetch.collect_food_noti_to_donor(notifyData).subscribe(notiRes => {
+					  console.log('Donor notified of rider booking');
+				  });
+
+				  this.router.navigate([
+					  '/finding-rider',
+					  this.model.add_id,
+					  this.model.r_lat,
+					  this.model.r_lon,
+					  this.model.r_id,
+					  this.model.mode,
+					  this.model.d_food_type,
+					  receiverFoodId
+				  ]);
+			  }, () => {
+				  this.router.navigate([
+					  '/finding-rider',
+					  this.model.add_id,
+					  this.model.r_lat,
+					  this.model.r_lon,
+					  this.model.r_id,
+					  this.model.mode,
+					  this.model.d_food_type,
+					  receiverFoodId
+				  ]);
+			  });
+		  } else {
+			  // If no Borzo, just send a basic notification
+			  let notifyData = JSON.stringify({
+				  'food_id': this.model.total_data.data.id,
+				  'logged_in_user': this.model.username_r,
+				  'no_of_person': this.model.number_of_person,
+				  'app_user_id': this.model.user_id,
+				  'food_type': this.model.total_data.data.food_type,
+				  'notification_type': 1,
+				  'to': this.model.total_data.data.app_user_id,
+				  'from': this.model.user_id,
+				  'message': "Someone is coming to pick up the food. Please pack it properly."
+			  });
+			  this.fetch.collect_food_noti_to_donor(notifyData).subscribe();
+			  this.router.navigate([
+				  '/get-food-nearest-donors-two-duplicate',
+				  this.model.add_id,
+				  this.model.r_lat,
+				  this.model.r_lon,
+				  this.model.r_id,
+				  this.model.mode,
+				  this.model.d_food_type,
+				  receiverFoodId
+			  ]);
+		  }
 		  }else{
+
+
 			this.errorMsg.showModal(this.model.key_text17);
 			this.router.navigate(['/home']);
 		  }
 		}); 
+	}
+
+	/** Convert ISO datetime (e.g. 2026-07-16T13:30:00+05:30) to a readable time like 1:30 PM */
+	formatEtaTime(isoDateTime: string): string {
+		if (!isoDateTime) {
+			return '';
+		}
+		const date = new Date(isoDateTime);
+		if (isNaN(date.getTime())) {
+			return '';
+		}
+		let hours = date.getHours();
+		const minutes = date.getMinutes();
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12 || 12;
+		const mins = minutes < 10 ? '0' + minutes : String(minutes);
+		return `${hours}:${mins} ${ampm}`;
+	}
+
+	parseDistanceKm(distance: any): number | null {
+		if (distance == null) {
+			return null;
+		}
+		if (typeof distance === 'number' && !isNaN(distance)) {
+			return distance > 100 ? distance / 1000 : distance;
+		}
+		if (typeof distance === 'object') {
+			if (typeof distance.value === 'number' && !isNaN(distance.value)) {
+				return distance.value / 1000;
+			}
+			return this.parseDistanceKm(distance.text);
+		}
+		const text = String(distance).toLowerCase().trim();
+		const match = text.match(/([\d.]+)\s*(km|m)?/);
+		if (!match) {
+			return null;
+		}
+		const value = parseFloat(match[1]);
+		if (isNaN(value)) {
+			return null;
+		}
+		return match[2] === 'm' ? value / 1000 : value;
+	}
+
+	isWithinCoverageRange(foodData: any): boolean {
+		const range = parseFloat(localStorage.getItem('coverage_range_km'));
+		if (isNaN(range) || range <= 0) {
+			return true;
+		}
+		const walking = foodData?.time_distance_walking?.rows?.[0]?.elements?.[0];
+		const driving = foodData?.time_distance_driving?.rows?.[0]?.elements?.[0];
+		let distanceKm: number | null = null;
+		if (walking?.status === 'OK') {
+			distanceKm = this.parseDistanceKm(walking.distance);
+		} else if (driving?.status === 'OK') {
+			distanceKm = this.parseDistanceKm(driving.distance);
+		}
+		if (distanceKm == null) {
+			return true;
+		}
+		return distanceKm <= (range + 0.05);
 	}
 }

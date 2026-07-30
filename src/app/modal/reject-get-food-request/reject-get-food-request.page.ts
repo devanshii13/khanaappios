@@ -44,13 +44,18 @@ export class RejectGetFoodRequestPage implements OnInit {
   accept_food_request(){
     var distance = $("#distance").val();
     this.model.search = true;
+    const pickupRequired = localStorage.getItem('pickup_required') === '1';
+    const thirdPartyFlags = {
+      'third_party': pickupRequired ? 1 : 0,
+      'pickup_required': pickupRequired ? 1 : 0
+    };
     let data1;
     if(this.r_data != null){
       if(this.type_id == 0){
-        data1 = JSON.stringify({'app_user_id' : this.app_id,'food_type' : this.model.food_type, 'no_of_person' : this.model.no_of_person, 'latitude' : this.r_data.latitude, 'longitude' : this.r_data.longitude, 'colony_name' : this.r_data.colony_name, 'city' : this.r_data.city, 'state' : this.r_data.state, 'country' : this.r_data.country, 'postal_code' : this.r_data.postalCode, 'status' : 0, 'distance' : distance });
+        data1 = JSON.stringify({'app_user_id' : this.app_id,'food_type' : this.model.food_type, 'no_of_person' : this.model.no_of_person, 'latitude' : this.r_data.latitude, 'longitude' : this.r_data.longitude, 'colony_name' : this.r_data.colony_name, 'city' : this.r_data.city, 'state' : this.r_data.state, 'country' : this.r_data.country, 'postal_code' : this.r_data.postalCode, 'status' : 0, 'distance' : distance, ...thirdPartyFlags });
       }if(this.type_id == 1){
        // data = JSON.stringify({'app_user_id' : this.app_user_id,  'food_type' : this.food_type, 'no_of_person' : this.no_of_person, 'latitude' : this.ontheway_data[0].startLat, 'longitude' : this.ontheway_data[0].startLng, 'colony_name' : this.ontheway_data[1].start, 'city' : this.ontheway_data[0].city, 'state' : this.ontheway_data[0].state, 'country' : this.ontheway_data[0].country, 'postal_code' : this.ontheway_data[0].postalCode,'status' : 0, 'distance' : distance});
-        data1 = JSON.stringify({'app_user_id' : this.app_id,'food_type' : this.model.food_type, 'no_of_person' : this.model.no_of_person, 'latitude' : this.r_data[0].startLat, 'longitude' : this.r_data[0].startLng, 'colony_name' : this.r_data[1].start, 'city' : this.r_data[0].city, 'state' : this.r_data[0].state, 'country' : this.r_data[0].country, 'postal_code' : this.r_data[0].postalCode, 'status' : 0, 'distance' : distance });
+        data1 = JSON.stringify({'app_user_id' : this.app_id,'food_type' : this.model.food_type, 'no_of_person' : this.model.no_of_person, 'latitude' : this.r_data[0].startLat, 'longitude' : this.r_data[0].startLng, 'colony_name' : this.r_data[1].start, 'city' : this.r_data[0].city, 'state' : this.r_data[0].state, 'country' : this.r_data[0].country, 'postal_code' : this.r_data[0].postalCode, 'status' : 0, 'distance' : distance, ...thirdPartyFlags });
       }
       
     }
