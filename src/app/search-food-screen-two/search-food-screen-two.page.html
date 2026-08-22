@@ -129,22 +129,19 @@
         </div>
       </div>
 
-      <!-- Availability checking spinner -->
-      <div class="availability-checking-row" *ngIf="model.availability_checking">
+      <!-- Availability checking spinner (only relevant for Delivery by Khanaa) -->
+      <div class="availability-checking-row" *ngIf="model.availability_checking && model.pickup_required">
         <ion-spinner name="crescent" class="avail-spinner"></ion-spinner>
         <span class="avail-checking-text">Checking delivery service for your pincode...</span>
       </div>
 
-      <!-- Unavailability error banner -->
+      <!-- Unavailability error banner (only shown when Delivery by Khanaa is selected and unavailable) -->
       <div class="unavailability-banner"
-        *ngIf="!model.availability_checking && !model.delivery_available && model.availability_msg">
+        *ngIf="model.pickup_required && !model.availability_checking && !model.delivery_available && model.availability_msg">
         <ion-icon name="warning-outline" class="unavail-icon"></ion-icon>
         <div class="unavail-text-block">
           <span class="unavail-title">Delivery Not Available</span>
           <span class="unavail-msg">{{model.availability_msg}}</span>
-          <span class="unavail-msg" *ngIf="!model.pickup_required" style="display:block; margin-top:4px;">
-            Switched to Self Pickup for this location.
-          </span>
         </div>
       </div>
     </div>

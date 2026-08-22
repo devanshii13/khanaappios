@@ -107,8 +107,14 @@ export class ActivityNormalPage implements OnInit {
 			$('#add_location_spinner').hide();
 		});
 
-		this.getFeedback();
+		// Also load receiver allotments on init so Activity is up-to-date
+		// regardless of which tab the user opens first.
+		this.fetch.my_alloted_request(this.model.user_id).subscribe(res => {
+			this.alloted_request_food = res['data'] || [];
+			this.enrichAllotmentsWithBorzo(this.alloted_request_food);
+		});
 
+		this.getFeedback();
 	}
 	format = function date2str(x, y) {
 		var z = {
@@ -702,7 +708,7 @@ export class ActivityNormalPage implements OnInit {
 	}
 
 	/**
-	 * App-side 5-min timeout (no cron): if still unassigned past deadline, cancel pickup.
+	 * App-side 15-min timeout (no cron): if still unassigned past deadline, cancel pickup.
 	 */
 	private autoCancelUnassignedPickup(val: any) {
 		const foodId = String(val.donate_food_id);
@@ -821,6 +827,7 @@ export class ActivityNormalPage implements OnInit {
 		if (phase === 'assigned' && previous === 'finding') {
 			const rider = val.rider_name ? ` (${val.rider_name})` : '';
 			this.showSuccessAlert(`A rider has been assigned for your pickup${rider}.`);
+			this.notifyRiderAssigned(val);
 		} else if (phase === 'picked_up' && previous !== 'delivered') {
 			this.showSuccessAlert('Food has been picked up by the rider.');
 		} else if (phase === 'delivered') {
@@ -877,7 +884,6 @@ export class ActivityNormalPage implements OnInit {
 			x.pickup_required
 			|| x.borzo_order_id
 			|| x.isBorzo
-			|| localStorage.getItem('pickup_required') === '1'
 		);
 
 		// For Borzo pickups always open searching screen first.
@@ -961,6 +967,43 @@ export class ActivityNormalPage implements OnInit {
 			buttons: ['OK']
 		});
 		await alert.present();
+	}
+
+	notifyRiderAssigned(allotment: any) {
+		const foodId = allotment.donate_food_id || allotment.food_id;
+		const allotmentId = allotment.id || allotment.getFoodId;
+		if (!foodId) {
+			return;
+		}
+
+		const riderName = allotment.rider_name || 'A Borzo rider';
+		const riderPhone = allotment.rider_phone ? ` (Phone: ${allotment.rider_phone})` : '';
+		const message = `Rider Assigned! ${riderName}${riderPhone} has been assigned to pick up donation #${foodId}.`;
+
+		// Determine target recipient (counterpart user)
+		let recipientId = null;
+		if (String(this.model.user_id) === String(allotment.donor_id) || String(this.model.user_id) === String(allotment.donar_id)) {
+			recipientId = allotment.app_user_id || allotment.receiver_id || allotment.get_food_user_id;
+		} else {
+			recipientId = allotment.donor_id || allotment.donar_id || allotment.app_user_id;
+		}
+
+		if (recipientId && String(recipientId) !== String(this.model.user_id)) {
+			const notifyData = JSON.stringify({
+				food_id: foodId,
+				logged_in_user: this.model.login_username || '',
+				no_of_person: allotment.no_of_person || 0,
+				app_user_id: this.model.user_id,
+				food_type: allotment.food_type || 1,
+				notification_type: 6,
+				to: recipientId,
+				from: this.model.user_id,
+				getFoodId: allotmentId,
+				message: message,
+				notification_message: message
+			});
+			this.fetch.notify_donar(notifyData).subscribe();
+		}
 	}
 
 	notifyVolunteerAllotmentCancelled(allotment: any) {

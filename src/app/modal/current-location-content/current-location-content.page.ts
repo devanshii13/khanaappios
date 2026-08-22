@@ -24,6 +24,10 @@ export class CurrentLocationContentPage implements OnInit, AfterViewInit {
   marker: any;
   mapLoading = true;
   private autocompleteReady = false;
+  /** Incremented on every geocode request; ensures stale callbacks are ignored. */
+  private geocodeRequestId = 0;
+  /** True once GPS has provided a definitive position – prevents finishMapLoad from overwriting it. */
+  private gpsPositionSet = false;
 
   constructor(
     private modalController: ModalController,
@@ -109,6 +113,7 @@ export class CurrentLocationContentPage implements OnInit, AfterViewInit {
     this.geolocation.getCurrentPosition(gpsOptions).then((resp) => {
       this.zone.run(() => {
         if (this.map) {
+          this.gpsPositionSet = true;
           this.moveMarkerTo(resp.coords.latitude, resp.coords.longitude);
         }
       });
@@ -161,9 +166,12 @@ export class CurrentLocationContentPage implements OnInit, AfterViewInit {
     setTimeout(() => {
       if (this.map) {
         google.maps.event.trigger(this.map, 'resize');
-        this.map.setCenter(new google.maps.LatLng(this.model.lat, this.model.lon));
-        if (this.marker) {
-          this.marker.setPosition(new google.maps.LatLng(this.model.lat, this.model.lon));
+        // Only re-center to the initial coords if GPS hasn't already set a better position.
+        if (!this.gpsPositionSet) {
+          this.map.setCenter(new google.maps.LatLng(this.model.lat, this.model.lon));
+          if (this.marker) {
+            this.marker.setPosition(new google.maps.LatLng(this.model.lat, this.model.lon));
+          }
         }
       }
       this.mapLoading = false;
@@ -252,9 +260,14 @@ export class CurrentLocationContentPage implements OnInit, AfterViewInit {
   }
 
   showAddress(lat, lon) {
+    const requestId = ++this.geocodeRequestId;
     const latLng = new google.maps.LatLng(lat, lon);
     const geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'latLng': latLng }, (results, status) => {
+      // Discard if a newer geocode request has already been issued.
+      if (requestId !== this.geocodeRequestId) {
+        return;
+      }
       this.zone.run(() => {
         if (status !== 'OK' || !results?.length) {
           this.model.colony_name = 'Unable to detect address. Please move the pin.';

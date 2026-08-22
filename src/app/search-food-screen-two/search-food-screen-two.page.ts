@@ -36,6 +36,7 @@ export class SearchFoodScreenTwoPage implements OnInit {
     useLocale: true,
     maxResults: 5
   };
+  private geocodeRequestId = 0;
   constructor(
     private router: Router,
     private fetch: FetchService,
@@ -201,16 +202,19 @@ export class SearchFoodScreenTwoPage implements OnInit {
     this.model.delivery_enabled = false;
     this.model.slots = res?.slots || [];
     this.model.coverage_range = res?.coverage_range || null;
-    this.model.availability_msg = message;
 
     const requestedDelivery = this.model.pickup_required || this.model.delivery_method === 'delivery';
     if (!requestedDelivery) {
+      // User chose Self Pickup — delivery unavailability is not relevant to them.
+      // Clear any message so no banner or alert is shown.
+      this.model.availability_msg = '';
       this.model.delivery_method = 'self';
       this.model.pickup_required = false;
       return;
     }
 
-    // Keep Delivery selected until the user acknowledges, so the banner remains visible.
+    // User requested Delivery by Khanaa but it is unavailable — show message and switch.
+    this.model.availability_msg = message;
     this.model.delivery_method = 'delivery';
     this.model.pickup_required = true;
 
@@ -222,6 +226,7 @@ export class SearchFoodScreenTwoPage implements OnInit {
         handler: () => {
           this.model.delivery_method = 'self';
           this.model.pickup_required = false;
+          this.model.availability_msg = '';
         }
       }]
     }).then(alert => alert.present());
@@ -314,10 +319,29 @@ export class SearchFoodScreenTwoPage implements OnInit {
   }
 
   isWithinCoverageRange(foodData: any): boolean {
-    // Coverage Range from Third Party admin applies to Borzo/third-party pickup.
     if (!this.model.pickup_required) {
-      return true;
+      // Self Pickup: enforce a maximum distance of 10 km so distant users
+      // (e.g. Hyderabad ↔ Gulbarga ~200 km) are never matched.
+      const SELF_PICKUP_MAX_KM = 10;
+      let distanceKm = this.getMatchDistanceKm(foodData);
+      // If Google API returned no data (intercity routes often have no walking/driving result),
+      // always fall back to Haversine straight-line distance.
+      if (distanceKm == null) {
+        const dLat = parseFloat(foodData?.latitude);
+        const dLng = parseFloat(foodData?.longitude);
+        const rLat = parseFloat(this.model.lat);
+        const rLng = parseFloat(this.model.lon);
+        if ([dLat, dLng, rLat, rLng].every((v) => !isNaN(v))) {
+          distanceKm = this.haversineKm(rLat, rLng, dLat, dLng);
+        }
+      }
+      if (distanceKm == null) {
+        // Cannot determine distance and coords are missing — allow through; backend will catch it.
+        return true;
+      }
+      return distanceKm <= SELF_PICKUP_MAX_KM;
     }
+    // Delivery by Khanaa: Coverage Range from admin panel applies.
     const range = parseFloat(
       this.model.coverage_range != null
         ? this.model.coverage_range
@@ -477,9 +501,13 @@ export class SearchFoodScreenTwoPage implements OnInit {
   }
 
   showAddress(lat, lon) {
+    const requestId = ++this.geocodeRequestId;
     let latLng = new google.maps.LatLng(lat, lon);
     let geocoder = new google.maps.Geocoder();
     geocoder.geocode({ 'latLng': latLng }, (results, status) => {
+      if (requestId !== this.geocodeRequestId) {
+        return;
+      }
       this.zone.run(() => {
         this.model.map_loading = false;
         if (status === 'OK' && results[0]) {

@@ -152,11 +152,41 @@ private mapInitialRouteDone = false;
 	}
 
 	// Safety: third-party matches must stay within admin Coverage Range (KM).
-	if (localStorage.getItem('pickup_required') === '1' && !this.isWithinCoverageRange(x.data)) {
+	// Self-Pickup matches must stay within 10 km.
+	const pickupRequired = localStorage.getItem('pickup_required') === '1';
+	const SELF_PICKUP_MAX_KM = 10;
+	if (pickupRequired && !this.isWithinCoverageRange(x.data)) {
 		const range = localStorage.getItem('coverage_range_km') || '1';
 		this.errorMsg.showModal(`This donation is outside the ${range} km coverage range.`);
 		this.router.navigate(['/home']);
 		return;
+	}
+	if (!pickupRequired) {
+		let distKm = this.getSelfPickupDistanceKm(x.data);
+		// If Google API returned no route (e.g., intercity / no road data),
+		// fall back to Haversine straight-line distance which always works
+		// as long as coordinates are available.
+		if (distKm == null) {
+			const dLat = parseFloat(x.data?.latitude);
+			const dLng = parseFloat(x.data?.longitude);
+			const rLat = parseFloat(this.model.r_lat);
+			const rLng = parseFloat(this.model.r_lon);
+			if ([dLat, dLng, rLat, rLng].every(v => !isNaN(v))) {
+				const toRad = (deg: number) => deg * Math.PI / 180;
+				const R = 6371;
+				const dLatR = toRad(dLat - rLat);
+				const dLonR = toRad(dLng - rLng);
+				const a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2)
+					+ Math.cos(toRad(rLat)) * Math.cos(toRad(dLat))
+					* Math.sin(dLonR / 2) * Math.sin(dLonR / 2);
+				distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+			}
+		}
+		if (distKm != null && distKm > SELF_PICKUP_MAX_KM) {
+			this.errorMsg.showModal(`This donation is too far for Self Pickup (${distKm.toFixed(1)} km). Please search for a closer donor.`);
+			this.router.navigate(['/home']);
+			return;
+		}
 	}
 	
 	this.geolocation.getCurrentPosition().then((resp) => {
@@ -202,9 +232,8 @@ private mapInitialRouteDone = false;
 		this.model.number_of_person = this.no_of_person;
 	  }
 
-	  let pickupRequired = localStorage.getItem('pickup_required');
 	  console.log(pickupRequired,"pickupRequired")
-	  if (pickupRequired == '1') {
+	  if (pickupRequired) {
 		  this.model.borzo_available = false;
 		  this.model.checking_availability = true;
 		  
@@ -579,7 +608,7 @@ var renderer = new google.maps.DirectionsRenderer({
 						);
 
 						// 5-min no-rider clock starts when order is created (app-side; no cron).
-						localStorage.setItem('borzo_rider_wait_until', String(Date.now() + 5 * 60 * 1000));
+						localStorage.setItem('borzo_rider_wait_until', String(Date.now() + 15 * 60 * 1000));
 						localStorage.setItem('borzo_rider_wait_food_id', String(this.model.total_data.data.id));
 					}
 
@@ -716,5 +745,36 @@ var renderer = new google.maps.DirectionsRenderer({
 			return true;
 		}
 		return distanceKm <= (range + 0.05);
+	}
+
+	/**
+	 * Returns the road distance (km) for a Self Pickup match.
+	 * Prefers walking, then driving, then Haversine fallback.
+	 */
+	getSelfPickupDistanceKm(foodData: any): number | null {
+		const walking = foodData?.time_distance_walking?.rows?.[0]?.elements?.[0];
+		const driving = foodData?.time_distance_driving?.rows?.[0]?.elements?.[0];
+		if (walking?.status === 'OK') {
+			return this.parseDistanceKm(walking.distance);
+		}
+		if (driving?.status === 'OK') {
+			return this.parseDistanceKm(driving.distance);
+		}
+		// Haversine fallback
+		const dLat = parseFloat(foodData?.latitude);
+		const dLng = parseFloat(foodData?.longitude);
+		const rLat = parseFloat(this.model.r_lat);
+		const rLng = parseFloat(this.model.r_lon);
+		if ([dLat, dLng, rLat, rLng].every(v => !isNaN(v))) {
+			const toRad = (deg: number) => deg * Math.PI / 180;
+			const R = 6371;
+			const dLatR = toRad(dLat - rLat);
+			const dLonR = toRad(dLng - rLng);
+			const a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2)
+				+ Math.cos(toRad(rLat)) * Math.cos(toRad(dLat))
+				* Math.sin(dLonR / 2) * Math.sin(dLonR / 2);
+			return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		}
+		return null;
 	}
 }

@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { FetchService } from '../fetch.service';
 
-const RIDER_WAIT_MS = 5 * 60 * 1000;
+const RIDER_WAIT_MS = 15 * 60 * 1000;
 const WAIT_UNTIL_KEY = 'borzo_rider_wait_until';
 const WAIT_FOOD_KEY = 'borzo_rider_wait_food_id';
 
@@ -296,6 +296,7 @@ export class FindingRiderPage implements OnInit {
         this.stopPolling();
         this.clearSearchTimeout();
         this.clearRiderWaitDeadline();
+        this.notifyCounterpartRiderAssigned(res);
         this.navigateToNextPage();
         return;
       }
@@ -325,6 +326,31 @@ export class FindingRiderPage implements OnInit {
 
   navigateToActivity() {
     this.router.navigate(['/activity-normal']);
+  }
+
+  private notifyCounterpartRiderAssigned(res: any) {
+    if (!this.r_id || !this.food_id) {
+      return;
+    }
+    const riderName = res?.order?.courier_name || 'A Borzo rider';
+    const riderPhone = res?.order?.courier_phone ? ` (Phone: ${res.order.courier_phone})` : '';
+    const message = `Rider Assigned! ${riderName}${riderPhone} has been assigned to pick up donation #${this.food_id}.`;
+    const currentUserId = localStorage.getItem('user_id');
+
+    const notifyData = JSON.stringify({
+      food_id: this.food_id,
+      logged_in_user: localStorage.getItem('username') || '',
+      no_of_person: 0,
+      app_user_id: currentUserId,
+      food_type: this.food_type || 1,
+      notification_type: 6,
+      to: this.r_id,
+      from: currentUserId,
+      getFoodId: this.getfood_id,
+      message: message,
+      notification_message: message
+    });
+    this.fetch.notify_donar(notifyData).subscribe();
   }
 
   navigateToNextPage() {

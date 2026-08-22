@@ -28,6 +28,7 @@ export class SavedAddressesAddPage implements OnInit {
   autocomplete:any={};
   geo: any;
   service = new google.maps.places.AutocompleteService();
+  private geocodeRequestId = 0;
   constructor(
 	private geolocation: Geolocation,
 	private nativeGeocoder: NativeGeocoder,
@@ -150,48 +151,34 @@ export class SavedAddressesAddPage implements OnInit {
 	    this.showAddress(this.model.LastLat,this.model.LastLng);
   }
   showAddress(lat, lon){
-	
+	const requestId = ++this.geocodeRequestId;
 	var self = this;
 	let latLng = new google.maps.LatLng(lat, lon);
 	let geocoder = new google.maps.Geocoder();
 	geocoder.geocode({ 'latLng': latLng }, (results, status) => {
-		
-		this.model.colony_name = results[0].formatted_address;
-		results[0].address_components.forEach(function(val,i){
-      
-			if (val.types[0] == "locality"){
-				
-				self.model.city = val.long_name;
+		if (requestId !== this.geocodeRequestId) {
+			return;
+		}
+		this.zone.run(() => {
+			if (status === 'OK' && results && results[0]) {
+				this.model.colony_name = results[0].formatted_address;
+				results[0].address_components.forEach(function(val,i){
+					if (val.types[0] == "locality"){
+						self.model.city = val.long_name;
+					}
+					if (val.types[0] == "administrative_area_level_1"){
+						self.model.state = val.long_name;
+					} 
+					if (val.types[0] == "country"){
+						self.model.country = val.long_name;
+					}
+					if (val.types[0] == "postal_code"){
+						self.model.postalCode = val.long_name;
+					}   
+				});
 			}
-			if (val.types[0] == "administrative_area_level_1"){
-				
-				self.model.state = val.long_name;
-			} 
-			if (val.types[0] == "country"){
-				
-				self.model.country = val.long_name;
-			}
-			if (val.types[0] == "postal_code"){
-				
-				self.model.postalCode = val.long_name;
-			}   
-	
-		  });
+		});
 	});
-	// let options: NativeGeocoderOptions = {
-	// 	useLocale: true,
-	// 	maxResults: 5
-	// };
-
-	// this.nativeGeocoder.reverseGeocode(lat, lon, options).then((result: NativeGeocoderResult[]) => {
-	// 	console.log(result);
-		
-	// 	this.model.colony_name = result[0].areasOfInterest[0]+' '+result[0].subLocality;
-	// 	this.model.city = result[0].locality;
-	// 	this.model.state = result[0].administrativeArea;
-	// 	this.model.country = result[0].countryName;
-	// 	this.model.postalCode = result[0].postalCode
-	// }).catch((error: any) => console.log(error));
   }
 
   address_type(val){
