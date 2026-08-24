@@ -151,44 +151,36 @@ private mapInitialRouteDone = false;
 		this.model.public_distance = 0;	
 	}
 
-	// Safety: third-party matches must stay within admin Coverage Range (KM).
-	// Self-Pickup matches must stay within 10 km.
 	const pickupRequired = localStorage.getItem('pickup_required') === '1';
-	const SELF_PICKUP_MAX_KM = 10;
-	if (pickupRequired && !this.isWithinCoverageRange(x.data)) {
-		const range = localStorage.getItem('coverage_range_km') || '1';
-		this.errorMsg.showModal(`This donation is outside the ${range} km coverage range.`);
+	this.model.pickup_required = pickupRequired;
+	const adminRange = parseFloat(localStorage.getItem('coverage_range_km'));
+	const maxRange = (!isNaN(adminRange) && adminRange > 0)
+		? adminRange
+		: (pickupRequired ? 2 : 10);
+
+	let distKm = this.getSelfPickupDistanceKm(x.data);
+	if (distKm == null) {
+		const dLat = parseFloat(x.data?.latitude);
+		const dLng = parseFloat(x.data?.longitude);
+		const rLat = parseFloat(this.model.r_lat);
+		const rLng = parseFloat(this.model.r_lon);
+		if ([dLat, dLng, rLat, rLng].every(v => !isNaN(v))) {
+			const toRad = (deg: number) => deg * Math.PI / 180;
+			const R = 6371;
+			const dLatR = toRad(dLat - rLat);
+			const dLonR = toRad(dLng - rLng);
+			const a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2)
+				+ Math.cos(toRad(rLat)) * Math.cos(toRad(dLat))
+				* Math.sin(dLonR / 2) * Math.sin(dLonR / 2);
+			distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		}
+	}
+	if (distKm != null && distKm > (maxRange + 0.05)) {
+		this.errorMsg.showModal(`This donation is outside the ${maxRange} km coverage range.`);
 		this.router.navigate(['/home']);
 		return;
 	}
-	if (!pickupRequired) {
-		let distKm = this.getSelfPickupDistanceKm(x.data);
-		// If Google API returned no route (e.g., intercity / no road data),
-		// fall back to Haversine straight-line distance which always works
-		// as long as coordinates are available.
-		if (distKm == null) {
-			const dLat = parseFloat(x.data?.latitude);
-			const dLng = parseFloat(x.data?.longitude);
-			const rLat = parseFloat(this.model.r_lat);
-			const rLng = parseFloat(this.model.r_lon);
-			if ([dLat, dLng, rLat, rLng].every(v => !isNaN(v))) {
-				const toRad = (deg: number) => deg * Math.PI / 180;
-				const R = 6371;
-				const dLatR = toRad(dLat - rLat);
-				const dLonR = toRad(dLng - rLng);
-				const a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2)
-					+ Math.cos(toRad(rLat)) * Math.cos(toRad(dLat))
-					* Math.sin(dLonR / 2) * Math.sin(dLonR / 2);
-				distKm = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-			}
-		}
-		if (distKm != null && distKm > SELF_PICKUP_MAX_KM) {
-			this.errorMsg.showModal(`This donation is too far for Self Pickup (${distKm.toFixed(1)} km). Please search for a closer donor.`);
-			this.router.navigate(['/home']);
-			return;
-		}
-	}
-	
+
 	this.geolocation.getCurrentPosition().then((resp) => {
 		
 		let latLng = new google.maps.LatLng(x.data.latitude, x.data.longitude);

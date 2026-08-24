@@ -51,7 +51,7 @@
 </ion-content>
 
 <ion-footer [class.hidden]="!mapLoaded" class="accept-page-footer">
-  <div class="pickup-info-banner" *ngIf="model.borzo_available">
+  <div class="pickup-info-banner" *ngIf="model.pickup_required && model.borzo_available">
     <div class="pickup-chip" *ngIf="model.eta_display">
       <ion-icon name="time-outline"></ion-icon>
       <span>ETA <strong>{{ model.eta_display }}</strong></span>

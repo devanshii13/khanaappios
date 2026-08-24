@@ -319,43 +319,30 @@ export class SearchFoodScreenTwoPage implements OnInit {
   }
 
   isWithinCoverageRange(foodData: any): boolean {
-    if (!this.model.pickup_required) {
-      // Self Pickup: enforce a maximum distance of 10 km so distant users
-      // (e.g. Hyderabad ↔ Gulbarga ~200 km) are never matched.
-      const SELF_PICKUP_MAX_KM = 10;
-      let distanceKm = this.getMatchDistanceKm(foodData);
-      // If Google API returned no data (intercity routes often have no walking/driving result),
-      // always fall back to Haversine straight-line distance.
-      if (distanceKm == null) {
-        const dLat = parseFloat(foodData?.latitude);
-        const dLng = parseFloat(foodData?.longitude);
-        const rLat = parseFloat(this.model.lat);
-        const rLng = parseFloat(this.model.lon);
-        if ([dLat, dLng, rLat, rLng].every((v) => !isNaN(v))) {
-          distanceKm = this.haversineKm(rLat, rLng, dLat, dLng);
-        }
-      }
-      if (distanceKm == null) {
-        // Cannot determine distance and coords are missing — allow through; backend will catch it.
-        return true;
-      }
-      return distanceKm <= SELF_PICKUP_MAX_KM;
-    }
-    // Delivery by Khanaa: Coverage Range from admin panel applies.
-    const range = parseFloat(
+    const adminRange = parseFloat(
       this.model.coverage_range != null
         ? this.model.coverage_range
         : localStorage.getItem('coverage_range_km')
     );
-    if (isNaN(range) || range <= 0) {
-      return true;
+    const maxRange = (!isNaN(adminRange) && adminRange > 0)
+      ? adminRange
+      : (this.model.pickup_required ? 2 : 10);
+
+    let distanceKm = this.getMatchDistanceKm(foodData);
+    // If Google API returned no data, fall back to Haversine straight-line distance
+    if (distanceKm == null) {
+      const dLat = parseFloat(foodData?.latitude);
+      const dLng = parseFloat(foodData?.longitude);
+      const rLat = parseFloat(this.model.lat);
+      const rLng = parseFloat(this.model.lon);
+      if ([dLat, dLng, rLat, rLng].every((v) => !isNaN(v))) {
+        distanceKm = this.haversineKm(rLat, rLng, dLat, dLng);
+      }
     }
-    const distanceKm = this.getMatchDistanceKm(foodData);
     if (distanceKm == null) {
       return true;
     }
-    // Small tolerance for rounding (1.8 should still fail for 1km).
-    return distanceKm <= (range + 0.05);
+    return distanceKm <= (maxRange + 0.05);
   }
 
   search_food_final() {
@@ -398,14 +385,6 @@ export class SearchFoodScreenTwoPage implements OnInit {
           this.data = res;
           this.router.navigate(['/get-food-nearest-donors', JSON.stringify(this.data), this.model.lat, this.model.lon, this.model.user_id, res.data.id, this.model.donor_location_data, '0']);
         } else {
-          if (hasFood && !withinRange) {
-            const range = this.model.coverage_range || localStorage.getItem('coverage_range_km') || '1';
-            this.alertController.create({
-              header: 'Outside coverage range',
-              message: `No food found within ${range} km coverage range set for third-party pickup.`,
-              buttons: ['OK']
-            }).then(a => a.present());
-          }
           this.data = { 'success': true, 'data': null };
           this.emptyMessage('nearby', JSON.parse(this.model.donor_location_data), this.model.user_id);
         }
