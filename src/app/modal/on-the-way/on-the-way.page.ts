@@ -24,15 +24,13 @@ export class OnTheWayPage implements OnInit {
   latitude: number = 0;
   longitude: number = 0;
   geo: any;
-  service = new google.maps.places.AutocompleteService();
+  service: any;
   model:any={};
   waypoints:any=[];
-  directionsService = new google.maps.DirectionsService();
-  directionsRenderer = new google.maps.DirectionsRenderer({
-    suppressMarkers: true
-  });
+  directionsService: any;
+  directionsRenderer: any;
   markers = [];
- infowindow = new google.maps.InfoWindow();
+  infowindow: any;
   options : GeolocationOptions;
   @ViewChild('map') mapElement: ElementRef;
   map: any;
@@ -82,11 +80,61 @@ export class OnTheWayPage implements OnInit {
       }
 
       self.map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+      // Initialize services safely after map is ready
+      self.directionsService = new google.maps.DirectionsService();
+      self.directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: true
+      });
+      self.service = new google.maps.places.AutocompleteService();
+      self.infowindow = new google.maps.InfoWindow();
+
       self.directionsRenderer.setMap(self.map);
+
+      // Initialize Autocomplete widgets once
+      self.initAutocomplete();
      
       
     }); 
   }
+
+  initAutocomplete() {
+    var center = { lat: this.model.LastLat, lng: this.model.LastLng };
+    var defaultBounds = {
+      north: center.lat + 0.3,
+      south: center.lat - 0.3,
+      east: center.lng + 0.3,
+      west: center.lng - 0.3,
+    };
+    var options = {
+      componentRestrictions: { country: "in" },
+    };
+
+    var input = document.getElementById("my_test") as HTMLInputElement;
+    if (input) {
+      var autocompleteStart = new google.maps.places.Autocomplete(input, options);
+      autocompleteStart.addListener("place_changed", () => {
+        var start_address = autocompleteStart.getPlace();
+        this.zone.run(() => {
+          this.autocomplete.start = start_address.formatted_address;
+          this.geoCode(this.autocomplete.start, 'start');
+        });
+      });
+    }
+
+    var input2 = document.getElementById("my_test2") as HTMLInputElement;
+    if (input2) {
+      var autocompleteEnd = new google.maps.places.Autocomplete(input2, options);
+      autocompleteEnd.addListener("place_changed", () => {
+        var end_address = autocompleteEnd.getPlace();
+        this.zone.run(() => {
+          this.autocomplete.end = end_address.formatted_address;
+          this.geoCode(this.autocomplete.end, 'end');
+        });
+      });
+    }
+  }
+
 
   ionViewDidEnter(){
     var lang_code = JSON.parse(localStorage.getItem('lang'));
@@ -122,127 +170,14 @@ export class OnTheWayPage implements OnInit {
   }
 
   updateSources() {
-    //alert(this.model.LastLat);
-    //alert(this.model.LastLng);
-    
-     
-    //console.log('-',input);
-    // if ( this.autocomplete.start == '') {
-    //  this.sources = [];
-    // return;
-    // }
-
-    var center = { lat: this.model.LastLat, lng: this.model.LastLng };
-// Create a bounding box with sides ~10km away from the center point
-    var defaultBounds = {
-      north: center.lat + 0.3,
-      south: center.lat - 0.3,
-      east: center.lng + 0.3,
-      west: center.lng - 0.3,
-    };
-  
-    var options = {
-      bounds: defaultBounds,
-      componentRestrictions: { country: "in" },
-      //fields: ["address_components", "geometry","icon", "name"],
-      strictBounds: true,
-      types: ["establishment"],
-    };
-    var input = document.getElementById("my_test") as HTMLInputElement;
-    var autocomplete = new google.maps.places.Autocomplete(input, options);
-    autocomplete.addListener("place_changed", () => {
-    var start_address = autocomplete.getPlace();
-    this.autocomplete.start = start_address.formatted_address
-    console.log(this.autocomplete.start)
-    this.geoCode(this.autocomplete.start,'start');
-     //console.log(place);
-
-    })
-    // var options = {
-    //   //language: 'en-GB',
-    //   types: ['(Ujjain)'],
-    //   componentRestrictions: { country: "in" }
-    // }
-
-    // var input = $('.address-search');
-    // var d = new google.maps.places.Autocomplete(input[0],options);
-    // console.log(input[0]);
-    // this.sources.push(d);
-      // let me = this;
-      //   this.service.getPlacePredictions({
-      //   input: this.autocomplete.start,
-      //   types: [this.model.currnet_city_name],
-      //   componentRestrictions: {
-      //     country: 'in'
-      //   }
-      // }, (predictions, status) => {
-      // me.sources = [];
-
-      // me.zone.run(() => {
-      //   if (predictions != null) {
-      //       predictions.forEach((prediction) => {
-      //         me.sources.push(prediction.description);
-      //       });
-      //     }
-      //   });
-      // });
-    
+    // Autocomplete is now handled by initAutocomplete() once.
+    // No need to re-initialize on every keyup.
   }
   updateDestinations() {
-    
-    var center = { lat: this.model.LastLat, lng: this.model.LastLng };
-    // Create a bounding box with sides ~10km away from the center point
-        var defaultBounds = {
-          north: center.lat + 0.3,
-          south: center.lat - 0.3,
-          east: center.lng + 0.3,
-          west: center.lng - 0.3,
-        };
-      
-        var options = {
-          bounds: defaultBounds,
-          componentRestrictions: { country: "in" },
-          //fields: ["address_components", "geometry","icon", "name"],
-          strictBounds: true,
-          types: ["establishment"],
-        };
-        var input = document.getElementById("my_test2") as HTMLInputElement;
-        var autocomplete = new google.maps.places.Autocomplete(input, options);
-        autocomplete.addListener("place_changed", () => {
-        var end_address = autocomplete.getPlace();
-        this.autocomplete.end = end_address.formatted_address;
-        this.geoCode(this.autocomplete.end,'end');
-         //console.log(place);
-    
-        })
-
-
-    // if ( this.autocomplete.end == '') {
-    //  this.destination = [];
-    // return;
-    // }
-
-    
-     
-    //   let me = this;
-    //     this.service.getPlacePredictions({
-    //     input: this.autocomplete.end,
-    //     componentRestrictions: {
-    //       country: 'in'
-    //     }
-    //   }, (predictions, status) => {
-    //   me.destination = [];
-
-    //   me.zone.run(() => {
-    //     if (predictions != null) {
-    //         predictions.forEach((prediction) => {
-    //           me.destination.push(prediction.description);
-    //         });
-    //       }
-    //     });
-    //   });
-    
+    // Autocomplete is now handled by initAutocomplete() once.
+    // No need to re-initialize on every keyup.
   }
+
 
   //convert Address string to lat and long
   geoCode(address:any,path) {

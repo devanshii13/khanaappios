@@ -3,4 +3,10 @@
 <ion-content>
     <ion-img src="../assets/images/loader.gif" style="height: 100px;text-align: center;margin-top: 50%;"></ion-img>
     <h5 class="size_15 regular green center">{{model.key_text1}}</h5>
-    </ion-content>
+    <p class="size_13 regular center" *ngIf="model.key_text2" style="padding: 0 24px; margin-top: 12px; color: #666;">
+      {{model.key_text2}}
+    </p>
+    <p class="size_13 regular center" *ngIf="borzoBooking" style="padding: 0 24px; margin-top: 12px; color: #444;">
+      Booking Khanaa delivery partner...
+    </p>
+</ion-content>

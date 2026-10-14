@@ -15,6 +15,7 @@ import { Geolocation,GeolocationOptions ,Geoposition ,PositionError } from '@ion
 import { JsonpClientBackend } from '@angular/common/http';
 import { FCM } from "cordova-plugin-fcm-with-dependecy-updated/ionic/ngx";
 import { Network } from '@ionic-native/network/ngx';
+import { environment } from '../environments/environment';
 
 declare var google: any;
 declare var FCMPlugin: any;
@@ -45,6 +46,11 @@ isLanguageChanged: boolean;
     private fcm : FCM,
     private network: Network
   ) {
+
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=places&v=weekly`;
+        script.async = true;
+        document.head.appendChild(script);
     
     var self = this;
     setInterval(function(){ 
@@ -148,8 +154,9 @@ isLanguageChanged: boolean;
       
   
 	this.fetch.isLanguageChanged.subscribe( value => {
+    console.log(value)
 	    this.isLanguageChanged = value;
-		var lang_code = JSON.parse(localStorage.getItem('lang'));
+		var lang_code = JSON.parse(localStorage.getItem('lang')) || 'en';
     this.fetch.getKeyText(lang_code).subscribe(rs => {
       this.storage.setScope(rs);
       let res = this.storage.getScope();

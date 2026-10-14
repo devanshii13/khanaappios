@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild ,ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { Geolocation,GeolocationOptions ,Geoposition ,PositionError } from '@ionic-native/geolocation/ngx';
 import { NativeGeocoder, NativeGeocoderResult, NativeGeocoderOptions } from '@ionic-native/native-geocoder/ngx';
 import { AlertController } from '@ionic/angular';
@@ -20,6 +20,7 @@ model:any={};
 options : GeolocationOptions;
 @ViewChild('map') mapElement: ElementRef;
 map: any;
+private geocodeRequestId = 0;
   constructor(
 	private geolocation: Geolocation,
 	private nativeGeocoder: NativeGeocoder,
@@ -29,6 +30,7 @@ map: any;
 	private router: Router,
 	private fetch: FetchService,
 	private storage:StorageService,
+	private zone: NgZone,
 	) { }
 
   ngOnInit() {
@@ -116,18 +118,26 @@ map: any;
   }
 
   showAddress(lat, lon){
-	let options: NativeGeocoderOptions = {
-		useLocale: true,
-		maxResults: 5
-	};
-
-	this.nativeGeocoder.reverseGeocode(lat, lon, options).then((result: NativeGeocoderResult[]) => {
-		this.model.colony_name = result[0].subLocality;
-		this.model.city = result[0].locality;
-		this.model.state = result[0].administrativeArea;
-		this.model.country = result[0].countryName;
-		this.model.postalCode = result[0].postalCode
-	}).catch((error: any) => console.log(error));
+	const requestId = ++this.geocodeRequestId;
+	let self = this;
+	let latLng = new google.maps.LatLng(lat, lon);
+	let geocoder = new google.maps.Geocoder();
+	geocoder.geocode({ 'latLng': latLng }, (results, status) => {
+		if (requestId !== this.geocodeRequestId) {
+			return;
+		}
+		this.zone.run(() => {
+			if (status === 'OK' && results && results[0]) {
+				this.model.colony_name = results[0].formatted_address;
+				results[0].address_components.forEach(function(val,i){
+					if (val.types.indexOf("locality") > -1) self.model.city = val.long_name;
+					if (val.types.indexOf("administrative_area_level_1") > -1) self.model.state = val.long_name;
+					if (val.types.indexOf("country") > -1) self.model.country = val.long_name;
+					if (val.types.indexOf("postal_code") > -1) self.model.postalCode = val.long_name;
+				});
+			}
+		});
+	});
   }
   address_type(val){
 	this.model.address_type = val;

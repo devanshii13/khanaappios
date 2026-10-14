@@ -128,7 +128,7 @@ export class FetchService {
 		 headers.set('Accept', 'application/json'); 
 		 headers.set('Access-Control-Allow-Origin', '*'); 
 		 headers.set('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');  
-		return this.http.get('https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDFf3YK0MWDI1dYyVcJONOwdaaXW_eO3aU&origins='+slat+','+slon+'&destinations='+dlat+','+dlon+'&mode='+mode+'&language=en-EN&sensor=false', {
+		return this.http.get(`https://maps.googleapis.com/maps/api/distancematrix/json?key=${environment.googleMapsApiKey}&origins='+slat+','+slon+'&destinations='+dlat+','+dlon+'&mode='+mode+'&language=en-EN&sensor=false`, {
       headers: headers
     });
 	}
@@ -472,5 +472,29 @@ export class FetchService {
 	}
 	getAnswer(id): Observable<any> { 
 		return this.http.get(environment.base_url + 'get-answer?question_id='+id);
+	}
+	check_availability(data): Observable<any> {
+		return this.http.post(environment.base_url + 'check_availability', data);
+	}
+	checkBorzoAvailability(data): Observable<any> {
+		return this.http.post(environment.base_url + 'borzo/calculate-order', data);
+	}
+	createBorzoOrder(data): Observable<any> {
+		return this.http.post(environment.base_url + 'borzo/create-order', data);
+	}
+	editBorzoOrder(data): Observable<any> {
+		return this.http.post(environment.base_url + 'borzo/edit-order', data);
+	}
+	cancelBorzoOrder(data): Observable<any> {
+		return this.http.post(environment.base_url + 'borzo/cancel-order', data);
+	}
+	getBorzoOrders(): Observable<any> {
+		return this.http.get(environment.base_url + 'borzo/orders');
+	}
+	getBorzoCourier(orderId): Observable<any> {
+		return this.http.get(environment.base_url + 'borzo/courier?order_id=' + orderId);
+	}
+	getBorzoOrderDetails(foodId): Observable<any> { 
+	return this.http.get( environment.base_url + 'borzo/order-details/' + foodId ); 
 	}
 }

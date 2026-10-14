@@ -1,101 +1,192 @@
-
 <app-captcha></app-captcha>
 <ion-content>
-<div class="ion-padding theme_width"> 
-  <div class="search_food_bg" style="min-height: 234px;">
-    <div class="search_single">
-      <div class="size_18 medium big_heading">{{model.key_text1}}</div>
+  <div class="ion-padding theme_width">
+    <!-- Your New Donation card (Hidden during map selection or summary) -->
+    <div class="modern_summary_card" *ngIf="!model.show_map && !model.location_selected">
+      <div class="summary-header">
+        <div class="summary-icon-container">
+          <ion-icon name="document-text-outline" class="summary-header-icon"></ion-icon>
+        </div>
+        <div class="summary-header-text">
+          <h2 class="summary-title">{{ model.key_text4 }}</h2>
+          <p class="summary-subtitle">Please confirm to proceed</p>
+        </div>
+      </div>
 
-      <ion-row *ngFor="let x of pending_data;let i = index;">
-        <ion-col size="8" style="padding: 0;">
-          {{i+1}}. {{x.food_type | foodType}}. {{model.key_text2}} {{x.total_food_for}} {{model.key_text3}}
-        </ion-col>
-        <ion-col size="4" style="padding: 0;">
-          <div class="grey_font right">{{x.updated_at | date:'shortTime'}}</div> 
-        </ion-col>
-      </ion-row>  
-      
+      <div class="summary-details-list">
+        <!-- Veg rows -->
+        <div class="summary-item" *ngIf="model.veg != 0">
+          <div class="summary-label-row">
+            <ion-icon name="fast-food-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Veg Food</span>
+          </div>
+          <span class="food-badge veg-badge">
+            <span class="badge-dot dot-veg"></span> {{veg_food.total_food_for}} Persons
+          </span>
+        </div>
+
+        <!-- Non-veg rows -->
+        <div class="summary-item" *ngIf="model.nonveg != 0">
+          <div class="summary-label-row">
+            <ion-icon name="fast-food-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Non-Veg Food</span>
+          </div>
+          <span class="food-badge nonveg-badge">
+            <span class="badge-dot dot-nonveg"></span> {{nonveg_food.total_food_for}} Persons
+          </span>
+        </div>
+      </div>
     </div>
 
-  </div>   
-  
-  <div class="search_food_bg" style="min-height: 306px; margin-top: 15px;">
-    <div class="">
+    <!-- Final Donation Summary (Replaces Map area) -->
+    <div class="modern_summary_card" *ngIf="model.location_selected">
+      <div class="summary-header">
+        <div class="summary-icon-container">
+          <ion-icon name="document-text-outline" class="summary-header-icon"></ion-icon>
+        </div>
+        <div class="summary-header-text">
+          <h2 class="summary-title font-medium">Donation Summary</h2>
+          <p class="summary-subtitle">Details of your scheduled pickup</p>
+        </div>
+      </div>    
 
-      <div class="size_18 medium big_heading">{{model.key_text4}}</div>
+      <div class="summary-details-list">
+        <!-- Donation ID -->
+        <div class="summary-item">
+          <div class="summary-label-row">
+            <ion-icon name="barcode-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Donation ID</span>
+          </div>
+          <span class="summary-value mono-text">{{model.donation_id || 'DON0034'}}</span>
+        </div>
 
-      <ion-row *ngIf="model.veg != 0">
-        <ion-col size="6">
-         {{model.key_text11}}
-        </ion-col>
-        <ion-col size="1" class="center">
-          :
-        </ion-col>
-        <ion-col size="5">
-          <div class="light_green center">{{veg_food.food_type | foodType}}.</div> 
-        </ion-col>
-        <br>
-        <br>
-      </ion-row> 
-      <ion-row *ngIf="model.veg != 0">
-        <ion-col size="6" class="custom_left">
-          {{model.key_text7}}
-        </ion-col>
-        <ion-col size="1" class="center">
-          :
-        </ion-col>
-        <ion-col size="5" class="custom_right">
-          <div class="size_15 center green">
-            {{veg_food.total_food_for}} {{model.key_text12}}
+        <!-- Veg food rows -->
+        <div class="summary-item" *ngIf="model.veg != 0">
+          <div class="summary-label-row">
+            <ion-icon name="fast-food-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Veg Food</span>
           </div>
-        </ion-col>
-        <br>
-        <br>
-      </ion-row>  
-      
-      <ion-row *ngIf="model.nonveg != 0" >
-        <ion-col size="6">
-         {{model.key_text11}}
-        </ion-col>
-        <ion-col size="1" class="center">
-          :
-        </ion-col>
-        <ion-col size="5">
-          <div style="color:#e8604c" class="center">{{nonveg_food.food_type | foodType}}.</div> 
-        </ion-col>
-        <br>
-        <br>
-      </ion-row> 
-      
-      <ion-row *ngIf="model.nonveg != 0">
-        <ion-col size="6" class="custom_left">
-          {{model.key_text7}}
-        </ion-col>
-        <ion-col size="1" class="center">
-          :
-        </ion-col>
-        <ion-col size="5" class="custom_right">
-          <div class="size_15 center green">
-            {{nonveg_food.total_food_for}} {{model.key_text12}}
+          <span class="food-badge veg-badge">
+            <span class="badge-dot dot-veg"></span> {{veg_food.total_food_for}} Persons
+          </span>
+        </div>
+
+        <!-- Non-veg food rows -->
+        <div class="summary-item" *ngIf="model.nonveg != 0">
+          <div class="summary-label-row">
+            <ion-icon name="fast-food-outline" class="item-icon"></ion-icon>
+            <span class="summary-label">Non-Veg Food</span>
           </div>
-        </ion-col>
-      </ion-row> 
+          <span class="food-badge nonveg-badge">
+            <span class="badge-dot dot-nonveg"></span> {{nonveg_food.total_food_for}} Persons
+          </span>
+        </div>
+
+        <!-- Status -->
+        <div class="summary-item">
+          <div class="summary-label-row">
+            <ion-icon name="checkmark-circle-outline" class="item-icon status-icon"></ion-icon>
+            <span class="summary-label">Status</span>
+          </div>
+          <span class="status-badge status-confirmed">Confirmed</span>
+        </div>
+
+        <!-- Pickup Method -->
+        <div class="summary-item">
+          <div class="summary-label-row">
+            <ion-icon name="bicycle-outline" class="item-icon pickup-icon"></ion-icon>
+            <span class="summary-label">Pickup Method</span>
+          </div>
+          <span class="method-badge">Pickup by Khanaa</span>
+        </div>
+      </div>
+
+      <div class="card-divider"></div>
+
+      <!-- Pickup Schedule Section -->
+      <div class="pickup-info-box">
+        <h4 class="pickup-info-title font-medium">Pickup Schedule</h4>
+        
+        <!-- Slots -->
+        <div class="pickup-detail-row" *ngIf="model.slots?.length">
+          <ion-icon name="time-outline" class="pickup-detail-icon"></ion-icon>
+          <div class="pickup-detail-content">
+            <span class="pickup-detail-label">Available Slots</span>
+            <div class="pickup-slots-list">
+              <span *ngFor="let slot of model.slots; let i = index" class="slot-pill">
+                {{ convertToAMPM(slot.start_time) }}–{{ convertToAMPM(slot.end_time) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ETA and Delivery Charges -->
+        <div class="pickup-estimates-grid" *ngIf="model.location_selected && model.toggle_enabled">
+          <div class="estimate-item" *ngIf="model.pickup_eta || model.availability_checking">
+            <div class="estimate-header">
+              <ion-spinner *ngIf="model.availability_checking" name="crescent" size="small" class="estimate-spinner"></ion-spinner>
+              <ion-icon *ngIf="!model.availability_checking" name="alarm-outline" class="estimate-icon"></ion-icon>
+              <span class="estimate-label">ETA</span>
+            </div>
+            <span class="estimate-value text-dark" *ngIf="!model.availability_checking">{{model.pickup_eta}}</span>
+            <span class="estimate-value loading-text" *ngIf="model.availability_checking">Calculating...</span>
+          </div>
+
+          <div class="estimate-item">
+            <div class="estimate-header">
+              <ion-icon name="wallet-outline" class="estimate-icon charges-icon"></ion-icon>
+              <span class="estimate-label">Pickup Charge</span>
+            </div>
+            <span class="estimate-value charges-value">Free — Covered by Khanaa</span>
+          </div>
+        </div>
+        <p class="pickup-charge-note" *ngIf="model.location_selected && model.toggle_enabled">
+          You do not need to pay for pickup or delivery. Khanaa covers the rider cost.
+        </p>
+      </div>
+
+      <!-- Availability checking spinner -->
+      <div class="availability-checking-row" *ngIf="model.availability_checking">
+        <ion-spinner name="crescent" class="avail-spinner"></ion-spinner>
+        <span class="avail-checking-text">Checking availability for your area...</span>
+      </div>
+
+      <!-- Unavailability notice -->
+      <div class="unavailability-banner" *ngIf="!model.availability_checking && model.location_selected && !model.toggle_enabled && model.availability_msg">
+        <ion-icon name="warning-outline" class="unavail-icon"></ion-icon>
+        <div class="unavail-text-block">
+          <span class="unavail-title">Pickup Not Available</span>
+          <span class="unavail-msg">{{model.availability_msg}}</span>
+        </div>
+      </div>
     </div>
 
-  </div>  
-  <br>
+  </div>
+</ion-content>
+
+<!-- Finding Rider Loader Overlay -->
+<div *ngIf="model.finding_rider" 
+  style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 2000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center;">
+  <div class="horizontal_center">
+    <ion-spinner name="crescent" style="width: 60px; height: 60px; color: #444;"></ion-spinner>
+  </div>
+  <p class="size_16 medium" style="color: #444; margin-top: 30px; line-height: 1.5;">
+    Finding a pickup rider. This may take a few minutes.
+  </p>
 </div>
 
-</ion-content>
-<div class="app_button" (click)="donate_food()">
-      
-  <button class="app_btn" *ngIf="!model.search">{{model.key_text16}}</button>
+<div class="app_button" (click)="!model.location_selected || model.toggle_enabled ? donate_food() : null">
+  <!-- Buttons for Summary / Normal Flow -->
+  <button class="app_btn" *ngIf="!model.search"
+    [class.app_btn_disabled]="model.location_selected && !model.toggle_enabled && !model.availability_checking">
+    <span *ngIf="model.availability_checking && model.location_selected">
+      <ion-spinner name="crescent" class="btn-spinner"></ion-spinner> Checking...
+    </span>
+    <span *ngIf="!model.availability_checking && model.pickup_required && model.location_selected && model.toggle_enabled">Confirm Pickup Request</span>
+    <span *ngIf="!model.availability_checking && model.location_selected && !model.toggle_enabled">Pickup Not Available</span>
+    <span *ngIf="!model.location_selected">{{ model.key_text16 }}</span>
+  </button>
+
   <button class="app_btn" *ngIf="model.search"><ion-spinner class="current_location_sppiner"></ion-spinner></button>
 </div>
 <app-footer [currentRoute]="'/donate-food-review'"></app-footer>
-
-
-
-
-  
-

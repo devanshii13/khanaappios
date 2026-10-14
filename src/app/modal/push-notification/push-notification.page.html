@@ -6,10 +6,10 @@
       <br>
       
       <div class="medium size_18 green center" style="max-width: 228px; width: 100%; margin: 0 auto;">
-        {{message}}
+        {{model.displayMessage || message}}
       </div>
       <br>
-      <div class="medium size_16">
+      <div class="medium size_16" *ngIf="!model.processing">
         <ion-row>
           <ion-col size="6">
             <button class="app_btn custom_reject_btn"  (click)="RejectRequest(true)">{{model.key_text1}}</button>

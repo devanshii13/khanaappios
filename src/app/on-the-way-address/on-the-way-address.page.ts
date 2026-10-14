@@ -72,13 +72,14 @@ export class OnTheWayAddressPage implements OnInit {
   this.type = this.route.snapshot.params['id'];
   }
  ionViewWillEnter(){
-  this.diagnostic.isLocationAvailable().then(resp =>{
-      if(!resp){
-        this.router.navigate(['/home']);
-      }
-    }).catch((error: any) => {
-      this.router.navigate(['/home']);
-    });
+  // Location check disabled temporarily
+  // this.diagnostic.isLocationAvailable().then(resp =>{
+  //     if(!resp){
+  //       this.router.navigate(['/home']);
+  //     }
+  //   }).catch((error: any) => {
+  //     this.router.navigate(['/home']);
+  //   });
     
   var lang_code = JSON.parse(localStorage.getItem('lang'));
   this.model.user_id = JSON.parse(localStorage.getItem('user_id'));
@@ -192,11 +193,7 @@ export class OnTheWayAddressPage implements OnInit {
         };
       
         var options = {
-          bounds: defaultBounds,
-          componentRestrictions: { country: "in" },
-          //fields: ["address_components", "geometry","icon", "name"],
-          strictBounds: true,
-          types: ["establishment"],
+          componentRestrictions: { country: "in" }
         };
         var input = document.getElementById("my_test") as HTMLInputElement;
         var autocomplete = new google.maps.places.Autocomplete(input, options);
@@ -246,11 +243,7 @@ export class OnTheWayAddressPage implements OnInit {
         };
       
         var options = {
-          bounds: defaultBounds,
-          componentRestrictions: { country: "in" },
-          //fields: ["address_components", "geometry","icon", "name"],
-          strictBounds: true,
-          types: ["establishment"],
+          componentRestrictions: { country: "in" }
         };
         var input = document.getElementById("my_test2") as HTMLInputElement;
         var autocomplete = new google.maps.places.Autocomplete(input, options);

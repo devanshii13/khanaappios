@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild ,ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FetchService } from '../fetch.service';
 import { StorageService } from '../storage.service';
@@ -24,8 +24,9 @@ location_data:any=[];
 options : GeolocationOptions;
 @ViewChild('map') mapElement: ElementRef;
 map: any;
+private geocodeRequestId = 0;
   constructor(private storage:StorageService, private http: HttpClient,private route: ActivatedRoute,private router: Router,private fetch: FetchService, private geolocation: Geolocation,public errorMsg : ErrorMsgService,
-	private nativeGeocoder: NativeGeocoder,public alertController: AlertController,private platform: Platform,private location: Location) {
+	private nativeGeocoder: NativeGeocoder,public alertController: AlertController,private platform: Platform,private location: Location, private zone: NgZone) {
 		this.platform.backButton.subscribeWithPriority(10, () => {
 			this.location.back();
 		});
@@ -139,33 +140,33 @@ map: any;
    }
 
   showAddress(lat, lon){
-
+	const requestId = ++this.geocodeRequestId;
 	var self = this;
 	let latLng = new google.maps.LatLng(lat, lon);
 	let geocoder = new google.maps.Geocoder();
 	geocoder.geocode({ 'latLng': latLng }, (results, status) => {
-		console.log(results);
-		this.location_data.colony_name = results[0].formatted_address;
-		results[0].address_components.forEach(function(val,i){
-      
-			if (val.types[0] == "locality"){
-				
-				self.location_data.city = val.long_name;
+		if (requestId !== this.geocodeRequestId) {
+			return;
+		}
+		this.zone.run(() => {
+			if (status === 'OK' && results && results[0]) {
+				this.location_data.colony_name = results[0].formatted_address;
+				results[0].address_components.forEach(function(val,i){
+					if (val.types[0] == "locality"){
+						self.location_data.city = val.long_name;
+					}
+					if (val.types[0] == "administrative_area_level_1"){
+						self.location_data.state = val.long_name;
+					} 
+					if (val.types[0] == "country"){
+						self.location_data.country = val.long_name;
+					}
+					if (val.types[0] == "postal_code"){
+						self.location_data.postalCode = val.long_name;
+					}   
+				});
 			}
-			if (val.types[0] == "administrative_area_level_1"){
-				
-				self.location_data.state = val.long_name;
-			} 
-			if (val.types[0] == "country"){
-				
-				self.location_data.country = val.long_name;
-			}
-			if (val.types[0] == "postal_code"){
-				
-				self.location_data.postalCode = val.long_name;
-			}   
-	
-		  });
+		});
 	});
   }
 

@@ -132,21 +132,8 @@ export class DonateFoodPickupDropPage implements OnInit {
   
       return await modal.present();
     }
-    async presentConfirm(){
-      const modal = await this.modalController.create({
-        component: ErrorMsgModalPage,
-        cssClass: 'error_modal_css',
-        backdropDismiss : false,
-        componentProps: {
-          "msg": this.alert_text,
-        }
-      });
-    
-      modal.onDidDismiss().then((dataReturned) => {
-        this.openModalCurrentLocation();
-      });
-    
-      return await modal.present();
+    presentConfirm(){
+       this.router.navigate(['/donate-food-pickup-method', this.model.veg, this.model.nonveg]);
     
     }
     nextScreen(){

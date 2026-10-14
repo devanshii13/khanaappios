@@ -97,7 +97,13 @@ options : GeolocationOptions;
 		localStorage.removeItem('receiver_food_type');
 		localStorage.removeItem('number_of_person');
 		localStorage.removeItem('set_confirm_location_route');
-		localStorage.removeItem('receiver_location');
+		// Keep selected receiver location while a Borzo pickup is still active.
+		const activePickup = localStorage.getItem('pickup_required') === '1'
+			|| !!localStorage.getItem('borzo_order_id');
+		if (!activePickup) {
+			localStorage.removeItem('receiver_location');
+			localStorage.removeItem('matched_pickup_location');
+		}
 		localStorage.removeItem('food_for_no_of_person');
 		this.model.user_id = localStorage.getItem('user_id');
 

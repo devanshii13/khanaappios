@@ -45,6 +45,8 @@ export class ScreenAfterVolunteerNotFoundPage implements OnInit {
 				this.model.key_text6 = item6[lang_code];
 			let item7 = res.find(i => i.key_text === 'VOLUNTEER');
       this.model.key_text7 = item7[lang_code];
+      let item3 = res.find(i => i.key_text === 'NO_VOLUNTEER_FOUND');
+        this.model.key_text3 = item3[lang_code];
     }
 
     async successModal(food) {

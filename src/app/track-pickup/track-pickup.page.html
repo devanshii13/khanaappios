@@ -1,0 +1,87 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon slot="icon-only" name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="size_18 medium">Track Pickup</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="trackOrder()" [disabled]="loading">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding tracking-bg">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="center-content">
+    <ion-spinner name="crescent" color="primary" style="height: 50px; width: 50px;"></ion-spinner>
+    <p class="size_14 medium grey" style="margin-top: 15px;">Fetching tracking details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="center-content">
+    <div class="error-card">
+      <ion-icon name="alert-circle-outline" color="danger" style="font-size: 60px;"></ion-icon>
+      <h3 class="size_18 bold dark">No tracking data found</h3>
+      <p class="size_14 regular grey">We couldn't find tracking information for Order ID: {{orderId}}</p>
+      <button class="app_btn small" (click)="goBack()">Go Back</button>
+    </div>
+  </div>
+
+  <!-- Tracking Content -->
+  <div *ngIf="trackingData && !loading" class="tracking-container">
+    <!-- Status Header -->
+    <div class="status-card">
+      <div class="status-indicator" [ngClass]="trackingData.status?.toLowerCase()"></div>
+      <div class="status-details">
+        <p class="size_14 regular grey">Order #{{orderId}}</p>
+        <h2 class="size_22 bold dark">{{trackingData.status || 'Status Unavailable'}}</h2>
+        <p class="size_12 italic grey" *ngIf="trackingData.last_updated">Updated: {{trackingData.last_updated}}</p>
+      </div>
+    </div>
+
+    <!-- Timeline Wrapper -->
+    <div class="timeline-card">
+      <h3 class="size_16 bold dark border-bottom pb-10">Delivery Progress</h3>
+      
+      <div class="timeline">
+        <div class="timeline-item" *ngFor="let scan of trackingData.scans; let i = index" [ngClass]="{'active': i === 0}">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <h4 class="size_14 bold dark">{{scan.activity}}</h4>
+            <p class="size_12 regular grey">{{scan.location}} | {{scan.date}}</p>
+          </div>
+        </div>
+
+        <!-- Placeholder if no scans yet -->
+        <div class="timeline-item active" *ngIf="!trackingData.scans || trackingData.scans.length === 0">
+          <div class="timeline-marker"></div>
+          <div class="timeline-content">
+            <h4 class="size_14 bold dark">Order Placed</h4>
+            <p class="size_12 regular grey">Your order has been initiated.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Courier Details if available -->
+    <div class="courier-card" *ngIf="trackingData.courier_name">
+      <h3 class="size_16 bold dark pb-10">Delivery Partner</h3>
+      <div class="courier-info">
+        <div class="avatar">
+          <ion-icon name="person-circle-outline"></ion-icon>
+        </div>
+        <div class="details">
+          <p class="size_14 bold dark">{{trackingData.courier_name}}</p>
+          <p class="size_12 regular grey" *ngIf="trackingData.tracking_number">Tracking ID: {{trackingData.tracking_number}}</p>
+        </div>
+        <a *ngIf="trackingData.courier_phone" [href]="'tel:' + trackingData.courier_phone" class="call-btn">
+          <ion-icon name="call-outline"></ion-icon>
+        </a>
+      </div>
+    </div>
+  </div>
+</ion-content>
