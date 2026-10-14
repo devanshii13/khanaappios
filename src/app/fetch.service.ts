@@ -128,7 +128,7 @@ export class FetchService {
 		 headers.set('Accept', 'application/json'); 
 		 headers.set('Access-Control-Allow-Origin', '*'); 
 		 headers.set('Access-Control-Allow-Methods', 'OPTIONS, GET, POST, PUT, PATCH, DELETE');  
-		return this.http.get('https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyDFf3YK0MWDI1dYyVcJONOwdaaXW_eO3aU&origins='+slat+','+slon+'&destinations='+dlat+','+dlon+'&mode='+mode+'&language=en-EN&sensor=false', {
+		return this.http.get('https://maps.googleapis.com/maps/api/distancematrix/json?key=AIzaSyA9na6iHxjPCHwWHUKTN3ZC-RwOm-S6jXg&origins='+slat+','+slon+'&destinations='+dlat+','+dlon+'&mode='+mode+'&language=en-EN&sensor=false', {
       headers: headers
     });
 	}
